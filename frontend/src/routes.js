@@ -30,7 +30,7 @@ import {UserProfile} from "views/UserProfile/UserProfile.js";
 import {TableList} from "views/TableList/TableList.js";
 import {Account} from "views/Typography/Typography.js";
 import {MarketData} from "views/Icons/Icons.js";
-import Maps from "views/Maps/Maps.js";
+import {Maps} from "views/Maps/Maps.js";
 import NotificationsPage from "views/Notifications/Notifications.js";
 import UpgradeToPro from "views/UpgradeToPro/UpgradeToPro.js";
 // core components/views for RTL layout
@@ -79,7 +79,7 @@ const dashboardRoutes = [
   },
   {
     path: "/maps",
-    name: "Maps",
+    name: "Trading",
     rtlName: "خرائط",
     icon: LocationOn,
     component: Maps,

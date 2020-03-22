@@ -53,7 +53,7 @@ class UserProfile extends React.Component {
         <GridContainer>
           <GridItem xs={12} sm={12} md={8}>
             <Card>
-              <CardHeader color="primary">
+              <CardHeader color="success">
                 <h4 className={classes.cardTitleWhite}>Edit Profile</h4>
                 <p className={classes.cardCategoryWhite}>Complete your profile</p>
               </CardHeader>

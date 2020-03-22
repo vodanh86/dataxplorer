@@ -115,7 +115,7 @@ class MarketData extends React.Component {
     }
     return (
           <Card>
-            <CardHeader color="primary">
+            <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Market Data</h4>
               <p className={classes.cardCategoryWhite}>
               Get a market data.

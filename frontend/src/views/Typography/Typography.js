@@ -97,7 +97,7 @@ class Account extends React.Component {
     try {
       var instruments = this.props.accounts.accountInfo.instruments.d
       instruments.forEach( instrument => {
-        tblInstruments.push([instrument.name, instrument.description, instrument.minQty, instrument.maxQty, instrument.qtyStep, instrument.pipSize, instrument.minTick, instrument.lotSize, instrument.baseCurrency, instrument.quoteCurrency, instrument.type])
+        tblInstruments.push([instrument.name, instrument.description, instrument.minQty, instrument.maxQty, instrument.qtyStep, instrument.pipSize, instrument.pipValue, instrument.minTick, instrument.lotSize, instrument.baseCurrency, instrument.quoteCurrency, instrument.marginRate, instrument.type])
       }
       )
     } catch (err) {
@@ -106,7 +106,7 @@ class Account extends React.Component {
     console.log(accountState);
     return (
           <Card>
-            <CardHeader color="primary">
+            <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Accounts</h4>
               <p className={classes.cardCategoryWhite}>
               Get a list of accounts owned by the user.
@@ -215,7 +215,7 @@ class Account extends React.Component {
                 <CardBody>
                   <Table
                     tableHeaderColor="warning"
-                    tableHead={["Balance", "Equity", "UnrealizedPl", "AmData"]}
+                    tableHead={["Name", "Description", "MinQty", "MaxQty", "QtyStep", "PipSize", "PipValue", "MinTick", "LotSize", "Base Currency", "Quote Currency", "Margin rate", "Type"]}
                     tableData={tblInstruments}
                   />
                 </CardBody>

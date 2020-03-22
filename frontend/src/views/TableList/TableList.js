@@ -98,7 +98,7 @@ class TableList extends React.Component {
       <GridContainer>
         <GridItem xs={12} sm={12} md={12}>
           <Card>
-            <CardHeader color="primary">
+            <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Configuration</h4>
               <p className={classes.cardCategoryWhite}>
                 Get localized configuration.
