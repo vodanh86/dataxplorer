@@ -15,7 +15,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             profile = Profile.objects.get(pk=self.user.id)
             user["bsc_token"] = profile.bsc_token
             user["expires_in"] = profile.expires_in.strftime('%Y-%m-%d %I:%M %p')
-        except Profile.DoesNotExist:
+        except:
             pass
         data["user"] = user
         return data
