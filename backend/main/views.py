@@ -100,6 +100,8 @@ def get_config(request):
     bsc_token = user.get("bsc_token")
     config = bsc_api.get_config(bsc_token)
     mapping = bsc_api.get_mapping(bsc_token)
+    print(mapping)
+    mapping["symbols"] = mapping["symbols"][:100]
     return JsonResponse({"config": config, "mapping": mapping})
 
 
@@ -110,3 +112,37 @@ def get_mapping(request):
     bsc_token = user.get("bsc_token")
     config = bsc_api.get_mapping(bsc_token)
     return JsonResponse({"mapping": config})
+
+
+@csrf_exempt
+def get_accounts(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    config = bsc_api.get_accounts(bsc_token)
+    return JsonResponse({"accounts": config})
+
+
+@csrf_exempt
+def get_account_info(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    account_id = post_data.get("accountId")
+    state = bsc_api.get_state(bsc_token, account_id)
+    orders = bsc_api.get_orders(bsc_token, account_id)
+    instruments = bsc_api.get_instruments(bsc_token, account_id)
+    instruments["d"] = instruments["d"][:100]
+    return JsonResponse({"accountInfo": {"state": state, "orders": orders, "instruments": instruments}})
+
+
+@csrf_exempt
+def get_market_data(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    symbol = post_data.get("symbol")
+    quotes = bsc_api.get_quotes(bsc_token, symbol)
+    depth = bsc_api.get_depth(bsc_token, symbol)
+    #instruments = bsc_api.get_instruments(bsc_token, symbol)
+    return JsonResponse({"quotes": quotes, "depth": depth})

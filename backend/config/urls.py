@@ -33,5 +33,8 @@ urlpatterns = [
     url(r'^api/user/refreshToken/$', main_views.refresh_token, name='token_obtain_pair'),
     url(r'^api/config/getConfig/$', main_views.get_config, name='token_obtain_pair'),
     url(r'^api/config/getMapping/$', main_views.get_mapping, name='token_obtain_pair'),
+    url(r'^api/account/getAccounts/$', main_views.get_accounts, name='get_accounts'),
+    url(r'^api/account/getAccountInfo/$', main_views.get_account_info, name='get_accounts'),
+    url(r'^api/marketData/getMarketData/$', main_views.get_market_data, name='get_market_data'),
     url(r'^api/echo/$', EchoView.as_view())
 ]

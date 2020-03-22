@@ -44,3 +44,39 @@ class BscApi():
         response = requests.get(
             self.api_server + "mapping/", data, headers=self._get_header(bsc_token))
         return response.json()
+
+    def get_accounts(self, bsc_token):
+        data = {}
+        response = requests.get(
+            self.api_server + "accounts/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
+    def get_state(self, bsc_token, account_id):
+        data = {}
+        response = requests.get(
+            self.api_server + "accounts/" + account_id + "/state/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
+    def get_orders(self, bsc_token, account_id):
+        data = {}
+        response = requests.get(
+            self.api_server + "accounts/" + account_id + "/orders/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
+    def get_instruments(self, bsc_token, account_id):
+        data = {}
+        response = requests.get(
+            self.api_server + "accounts/" + account_id + "/instruments/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
+    def get_quotes(self, bsc_token, symbol):
+        data = {"symbols": symbol}
+        response = requests.get(
+            self.api_server + "quotes/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
+    def get_depth(self, bsc_token, symbol):
+        data = {"symbols": symbol}
+        response = requests.get(
+            self.api_server + "depth/", data, headers=self._get_header(bsc_token))
+        return response.json()

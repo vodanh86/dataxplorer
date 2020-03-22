@@ -1,17 +1,30 @@
 import React from "react";
 // @material-ui/core components
-import { makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
+import { connect } from 'react-redux';
+
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
+import {getAccounts} from  '../../actions/account'
+import {getAccountInfo} from  '../../actions/account'
 // core components
-import Quote from "components/Typography/Quote.js";
-import Muted from "components/Typography/Muted.js";
-import Primary from "components/Typography/Primary.js";
-import Info from "components/Typography/Info.js";
-import Success from "components/Typography/Success.js";
-import Warning from "components/Typography/Warning.js";
-import Danger from "components/Typography/Danger.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+import BugReport from "@material-ui/icons/BugReport";
+import Code from "@material-ui/icons/Code";
+import Cloud from "@material-ui/icons/Cloud";
+// core components
+import GridItem from "components/Grid/GridItem.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import Table from "components/Table/Table.js";
+import Tasks from "components/Tasks/Tasks.js";
+import CustomTabs from "components/CustomTabs/CustomTabs.js";
+import { bugs, website, server } from "variables/general.js";
 
 const styles = {
   typo: {
@@ -50,113 +63,190 @@ const styles = {
   }
 };
 
-const useStyles = makeStyles(styles);
+class Account extends React.Component { 
+  constructor(props) {
+    super(props);
+  }
 
-export default function TypographyPage() {
-  const classes = useStyles();
-  return (
-    <Card>
-      <CardHeader color="primary">
-        <h4 className={classes.cardTitleWhite}>Material Dashboard Heading</h4>
-        <p className={classes.cardCategoryWhite}>
-          Created using Roboto Font Family
-        </p>
-      </CardHeader>
-      <CardBody>
-        <div className={classes.typo}>
-          <div className={classes.note}>Header 1</div>
-          <h1>The Life of Material Dashboard</h1>
+  componentDidMount() {
+    const {user} = this.props;
+    this.props.getAccounts(user);
+  }
+
+  handleOnChange = (event) => {
+    const {user} = this.props;
+    this.props.getAccountInfo(user, event.target.value);
+    //this.props.refreshToken(user);
+  }
+
+  render(){
+    const { classes } = this.props;
+    var accounts = []
+    var tblState = []
+    var tblInstruments = []
+    try {
+      var accountState = this.props.accounts.accountInfo.state.d
+      tblState.push([accountState.balance, accountState.equity, accountState.unrealizedPl, JSON.stringify(accountState.amData)]);
+    } catch(err) {
+    }
+    try {
+      accounts = this.props.accounts.accounts.d
+    }
+    catch(err) {
+    }
+    try {
+      var instruments = this.props.accounts.accountInfo.instruments.d
+      instruments.forEach( instrument => {
+        tblInstruments.push([instrument.name, instrument.description, instrument.minQty, instrument.maxQty, instrument.qtyStep, instrument.pipSize, instrument.minTick, instrument.lotSize, instrument.baseCurrency, instrument.quoteCurrency, instrument.type])
+      }
+      )
+    } catch (err) {
+
+    }
+    console.log(accountState);
+    return (
+          <Card>
+            <CardHeader color="primary">
+              <h4 className={classes.cardTitleWhite}>Accounts</h4>
+              <p className={classes.cardCategoryWhite}>
+              Get a list of accounts owned by the user.
+              </p>
+            </CardHeader>
+            <CardBody>
+            <div>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="demo-simple-select-helper-label">Account</InputLabel>
+            <Select
+              xs={12} sm={12} md={12}
+              labelId="demo-simple-select-helper-label"
+              id="demo-simple-select-helper"
+              onChange={(event) => this.handleOnChange(event)}
+            >
+              {accounts.map(item => {
+                return <MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>;
+              })}
+            </Select>
+            <FormHelperText>Select account</FormHelperText>
+          </FormControl>       
         </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Header 2</div>
-          <h2>The Life of Material Dashboard</h2>
+         
+        </CardBody>
+        <div>
+          <GridContainer>
+          <GridItem xs={12} sm={12} md={6}>
+              <Card>
+                <CardHeader color="warning">
+                  <h4 className={classes.cardTitleWhite}>State</h4>
+                  <p className={classes.cardCategoryWhite}>
+                    Get account information.
+                  </p>
+                </CardHeader>
+                <CardBody>
+                  <Table
+                    tableHeaderColor="warning"
+                    tableHead={["Balance", "Equity", "UnrealizedPl", "AmData"]}
+                    tableData={tblState}
+                  />
+                </CardBody>
+              </Card>
+            </GridItem>
+            <GridItem xs={12} sm={12} md={6}>
+              <CustomTabs
+                title="Account:"
+                headerColor="primary"
+                tabs={[
+                  {
+                    tabName: "Orders",
+                    tabIcon: BugReport,
+                    tabContent: (
+                      <Tasks
+                        checkedIndexes={[0, 3]}
+                        tasksIndexes={[0, 1, 2, 3]}
+                        tasks={bugs}
+                      />
+                    )
+                  },
+                  {
+                    tabName: "Positions",
+                    tabIcon: Code,
+                    tabContent: (
+                      <Tasks
+                        checkedIndexes={[0]}
+                        tasksIndexes={[0, 1]}
+                        tasks={website}
+                      />
+                    )
+                  },
+                  {
+                    tabName: "Executions",
+                    tabIcon: Cloud,
+                    tabContent: (
+                      <Tasks
+                        checkedIndexes={[1]}
+                        tasksIndexes={[0, 1, 2]}
+                        tasks={server}
+                      />
+                    )
+                  },
+                  {
+                    tabName: "Orders History",
+                    tabIcon: Cloud,
+                    tabContent: (
+                      <Tasks
+                        checkedIndexes={[1]}
+                        tasksIndexes={[0, 1, 2]}
+                        tasks={server}
+                      />
+                    )
+                  }
+                ]}
+              />
+            </GridItem>
+          </GridContainer>
+          <GridContainer>
+          <GridItem xs={12} sm={12} md={12}>
+              <Card>
+                <CardHeader color="warning">
+                  <h4 className={classes.cardTitleWhite}>Instruments</h4>
+                  <p className={classes.cardCategoryWhite}>
+                  Get the list of the instruments that are available for trading with the specified account.
+                  </p>
+                </CardHeader>
+                <CardBody>
+                  <Table
+                    tableHeaderColor="warning"
+                    tableHead={["Balance", "Equity", "UnrealizedPl", "AmData"]}
+                    tableData={tblInstruments}
+                  />
+                </CardBody>
+              </Card>
+            </GridItem>
+          </GridContainer>
         </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Header 3</div>
-          <h3>The Life of Material Dashboard</h3>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Header 4</div>
-          <h4>The Life of Material Dashboard</h4>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Header 5</div>
-          <h5>The Life of Material Dashboard</h5>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Header 6</div>
-          <h6>The Life of Material Dashboard</h6>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Paragraph</div>
-          <p>
-            I will be the leader of a company that ends up being worth billions
-            of dollars, because I got the answers. I understand culture. I am
-            the nucleus. I think that’s a responsibility that I have, to push
-            possibilities, to show people, this is the level that things could
-            be at.
-          </p>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Quote</div>
-          <Quote
-            text="I will be the leader of a company that ends up being worth billions of dollars, because I got the answers. I understand culture. I am the nucleus. I think that’s a responsibility that I have, to push possibilities, to show people, this is the level that things could be at."
-            author=" Kanye West, Musician"
-          />
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Muted Text</div>
-          <Muted>
-            I will be the leader of a company that ends up being worth billions
-            of dollars, because I got the answers...
-          </Muted>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Primary Text</div>
-          <Primary>
-            I will be the leader of a company that ends up being worth billions
-            of dollars, because I got the answers...
-          </Primary>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Info Text</div>
-          <Info>
-            I will be the leader of a company that ends up being worth billions
-            of dollars, because I got the answers...
-          </Info>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Success Text</div>
-          <Success>
-            I will be the leader of a company that ends up being worth billions
-            of dollars, because I got the answers...
-          </Success>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Warning Text</div>
-          <Warning>
-            I will be the leader of a company that ends up being worth billions
-            of dollars, because I got the answers...
-          </Warning>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Danger Text</div>
-          <Danger>
-            I will be the leader of a company that ends up being worth billions
-            of dollars, because I got the answers...
-          </Danger>
-        </div>
-        <div className={classes.typo}>
-          <div className={classes.note}>Small Tag</div>
-          <h2>
-            Header with small subtitle
-            <br />
-            <small>
-              Use {'"'}Small{'"'} tag for the headers
-            </small>
-          </h2>
-        </div>
-      </CardBody>
-    </Card>
-  );
+      </Card>
+    );
+  }
 }
+
+function mapStateToProps(state) {
+  const { accounts } = state;
+  const { user } = state.auth;
+  return {
+    user, 
+    accounts
+  };
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    getAccounts: (user) => {
+      dispatch(getAccounts(user))
+    },
+    getAccountInfo: (user, accountId) => {
+      dispatch(getAccountInfo(user, accountId))
+    }
+  }
+}
+
+const connectedAccount = connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Account));
+export { connectedAccount as Account };

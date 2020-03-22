@@ -3,14 +3,17 @@ import { routerReducer } from 'react-router-redux'
 import auth, * as fromAuth from './auth.js'
 import echo, * as fromEcho from './echo.js'
 import config, * as fromConfig from './config.js'
+import accounts, * as accountConfig from './account.js'
+import marketData, * as fromMarketData from './marketData.js'
 
 export default combineReducers({
   auth: auth,
   echo: echo,
   config: config,
+  accounts: accounts,
+  marketData: marketData,
   router: routerReducer
 })
-
 
 export const isAuthenticated = state => fromAuth.isAuthenticated(state.auth)
 export const accessToken = state => fromAuth.accessToken(state.auth)
