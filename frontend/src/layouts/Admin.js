@@ -1,11 +1,9 @@
 import React from 'react';
 import queryString from 'query-string';
-import { Menu } from '../_components';
 import Navbar from "../components/Navbars/Navbar.js";
 import Footer from "../components/Footer/Footer.js";
 import Sidebar from "../components/Sidebar/Sidebar.js";
 import { connect } from 'react-redux';
-import { userActions } from '../_actions';
 import {updateToken} from  '../actions/auth'
 import logo from "../assets/img/reactlogo.png";
 import bgImage from "../assets/img/sidebar-2.jpg";
