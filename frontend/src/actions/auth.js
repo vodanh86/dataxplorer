@@ -75,7 +75,7 @@ export const updateToken = (user, code) => ({
 export const logout = () => ({
     [RSAA]: {
         types: [
-            LOGOUT_REQUEST, LOGOUT_SUCCESS, LOGOUT_FAILURE
+            LOGOUT_SUCCESS
         ]
     }
 })
