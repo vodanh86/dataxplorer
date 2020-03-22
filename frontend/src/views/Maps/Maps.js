@@ -10,7 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 import {getAccounts} from  '../../actions/account'
-import {getAccountInfo} from  '../../actions/account'
+import {getConfig} from  '../../actions/config'
 // core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -25,6 +25,15 @@ import Table from "components/Table/Table.js";
 import Tasks from "components/Tasks/Tasks.js";
 import CustomTabs from "components/CustomTabs/CustomTabs.js";
 import { bugs, website, server } from "variables/general.js";
+
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import CardFooter from "components/Card/CardFooter";
 
 const styles = {
   typo: {
@@ -66,24 +75,52 @@ const styles = {
 class Maps extends React.Component { 
   constructor(props) {
     super(props);
+    this.state = {
+      open: false,
+      accountID: "",
+      instrumentID: ""
+    }
   }
 
   componentDidMount() {
     const {user} = this.props;
     this.props.getAccounts(user);
+    this.props.getConfig(user);
   }
 
   handleOnChange = (event) => {
     const {user} = this.props;
-    this.props.getAccountInfo(user, event.target.value);
+    this.setState(
+      {accountID: event.target.value}
+    )
     //this.props.refreshToken(user);
   }
+
+  handleInstrumentOnChange = (event) => {
+    const {user} = this.props;
+    this.setState(
+      {instrumentID: event.target.value}
+    )
+    //this.props.refreshToken(user);
+  }
+
+  handleClickOpen = () => {
+    this.setState({
+      open: true
+    })
+  };
+
+  handleClose = () => {
+    this.setState({
+      open: false,
+    })
+  };
 
   render(){
     const { classes } = this.props;
     var accounts = []
     var tblState = []
-    var tblInstruments = []
+    var instruments = []
     try {
       var accountState = this.props.accounts.accountInfo.state.d
       tblState.push([accountState.balance, accountState.equity, accountState.unrealizedPl, JSON.stringify(accountState.amData)]);
@@ -95,145 +132,111 @@ class Maps extends React.Component {
     catch(err) {
     }
     try {
-      var instruments = this.props.accounts.accountInfo.instruments.d
-      instruments.forEach( instrument => {
-        tblInstruments.push([instrument.name, instrument.description, instrument.minQty, instrument.maxQty, instrument.qtyStep, instrument.pipSize, instrument.pipValue, instrument.minTick, instrument.lotSize, instrument.baseCurrency, instrument.quoteCurrency, instrument.marginRate, instrument.type])
-      }
-      )
+      instruments = this.props.config.mapping.symbols
     } catch (err) {
-
     }
-    console.log(accountState);
     return (
-          <Card>
-            <CardHeader color="success">
-              <h4 className={classes.cardTitleWhite}>Accounts</h4>
-              <p className={classes.cardCategoryWhite}>
-              Get a list of accounts owned by the user.
-              </p>
-            </CardHeader>
-            <CardBody>
-            <div>
-          <FormControl className={classes.formControl}>
-            <InputLabel id="demo-simple-select-helper-label">Account</InputLabel>
-            <Select
-              xs={12} sm={12} md={12}
-              labelId="demo-simple-select-helper-label"
-              id="demo-simple-select-helper"
-              onChange={(event) => this.handleOnChange(event)}
-            >
-              {accounts.map(item => {
-                return <MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>;
-              })}
-            </Select>
-            <FormHelperText>Select account</FormHelperText>
-          </FormControl>       
-        </div>
-         
-        </CardBody>
         <div>
           <GridContainer>
-          <GridItem xs={12} sm={12} md={6}>
-              <Card>
-                <CardHeader color="warning">
-                  <h4 className={classes.cardTitleWhite}>State</h4>
-                  <p className={classes.cardCategoryWhite}>
-                    Get account information.
-                  </p>
-                </CardHeader>
-                <CardBody>
-                  <Table
-                    tableHeaderColor="warning"
-                    tableHead={["Balance", "Equity", "UnrealizedPl", "AmData"]}
-                    tableData={tblState}
-                  />
-                </CardBody>
-              </Card>
+            <GridItem xs={12} sm={12} md={12}>
+                <Card>
+                  <CardHeader color="success">
+                    <h4 className={classes.cardTitleWhite}>Accounts</h4>
+                    <p className={classes.cardCategoryWhite}>
+                    Get a list of accounts owned by the user.
+                    </p>
+                  </CardHeader>
+                  <CardBody>
+                    <GridContainer>
+                    <GridItem xs={2} sm={2} md={2}>
+                      <FormControl className={classes.formControl}>
+                        <InputLabel id="demo-simple-select-helper-label">Account</InputLabel>
+                          <Select
+                            xs={12} sm={12} md={12}
+                            labelId="demo-simple-select-helper-label"
+                            id="demo-simple-select-helper"
+                            onChange={(event) => this.handleOnChange(event)}
+                          >
+                          {accounts.map(item => {
+                            return <MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>;
+                          })}
+                        </Select>
+                        <FormHelperText>Select account</FormHelperText>
+                      </FormControl>  
+                    </GridItem>
+                    <GridItem xs={4} sm={4} md={4}>
+                        <h5>Account id: {this.state.accountID}</h5>
+                    </GridItem>
+                    <GridItem xs={3} sm={3} md={3}>
+                    <FormControl className={classes.formControl}>
+                        <InputLabel id="demo-simple-select-helper-label">Instrument</InputLabel>
+                          <Select
+                            xs={12} sm={12} md={12}
+                            labelId="demo-simple-select-helper-label"
+                            id="demo-simple-select-helper"
+                            onChange={(event) => this.handleInstrumentOnChange(event)}
+                          >
+                          {instruments.map(item => {
+                            return <MenuItem value={item.f[0]} key={item.f[0]}>{item.s}</MenuItem>;
+                          })}
+                        </Select>
+                        <FormHelperText>Select account</FormHelperText>
+                      </FormControl>  
+                    </GridItem>
+                    <GridItem xs={3} sm={3} md={3}>
+                    <h5>Instrument id: {this.state.instrumentID}</h5>
+                    </GridItem>
+                    </GridContainer>
+                        
+                  </CardBody>
+                  <CardFooter>
+                      <div>
+                        <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+                          Place Order
+                        </Button>
+                        <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
+                          <DialogTitle id="form-dialog-title">Place order</DialogTitle>
+                          <DialogContent>
+                            <DialogContentText>
+                              Place a new order.
+                            </DialogContentText>
+                            <TextField
+                              autoFocus
+                              margin="dense"
+                              id="name"
+                              label="Email Address"
+                              type="email"
+                              fullWidth
+                            />
+                          </DialogContent>
+                          <DialogActions>
+                            <Button onClick={this.handleClose} color="primary">
+                              Cancel
+                            </Button>
+                            <Button onClick={this.handleClose} color="primary">
+                              Ok
+                            </Button>
+                          </DialogActions>
+                        </Dialog>
+                      </div>
+                  </CardFooter>
+                </Card>
             </GridItem>
-            <GridItem xs={12} sm={12} md={6}>
-              <CustomTabs
-                title="Account:"
-                headerColor="primary"
-                tabs={[
-                  {
-                    tabName: "Orders",
-                    tabIcon: BugReport,
-                    tabContent: (
-                      <Tasks
-                        checkedIndexes={[0, 3]}
-                        tasksIndexes={[0, 1, 2, 3]}
-                        tasks={bugs}
-                      />
-                    )
-                  },
-                  {
-                    tabName: "Positions",
-                    tabIcon: Code,
-                    tabContent: (
-                      <Tasks
-                        checkedIndexes={[0]}
-                        tasksIndexes={[0, 1]}
-                        tasks={website}
-                      />
-                    )
-                  },
-                  {
-                    tabName: "Executions",
-                    tabIcon: Cloud,
-                    tabContent: (
-                      <Tasks
-                        checkedIndexes={[1]}
-                        tasksIndexes={[0, 1, 2]}
-                        tasks={server}
-                      />
-                    )
-                  },
-                  {
-                    tabName: "Orders History",
-                    tabIcon: Cloud,
-                    tabContent: (
-                      <Tasks
-                        checkedIndexes={[1]}
-                        tasksIndexes={[0, 1, 2]}
-                        tasks={server}
-                      />
-                    )
-                  }
-                ]}
-              />
-            </GridItem>
-          </GridContainer>
-          <GridContainer>
-          <GridItem xs={12} sm={12} md={12}>
-              <Card>
-                <CardHeader color="warning">
-                  <h4 className={classes.cardTitleWhite}>Instruments</h4>
-                  <p className={classes.cardCategoryWhite}>
-                  Get the list of the instruments that are available for trading with the specified account.
-                  </p>
-                </CardHeader>
-                <CardBody>
-                  <Table
-                    tableHeaderColor="warning"
-                    tableHead={["Name", "Description", "MinQty", "MaxQty", "QtyStep", "PipSize", "PipValue", "MinTick", "LotSize", "Base Currency", "Quote Currency", "Margin rate", "Type"]}
-                    tableData={tblInstruments}
-                  />
-                </CardBody>
-              </Card>
-            </GridItem>
-          </GridContainer>
-        </div>
-      </Card>
+          </GridContainer>    
+      </div>  
     );
   }
 }
 
 function mapStateToProps(state) {
+  console.log(state)
   const { accounts } = state;
+  const { config } = state;
   const { user } = state.auth;
   return {
     user, 
-    accounts
+    accounts,
+    config
   };
 }
 
@@ -242,8 +245,8 @@ const mapDispatchToProps = dispatch => {
     getAccounts: (user) => {
       dispatch(getAccounts(user))
     },
-    getAccountInfo: (user, accountId) => {
-      dispatch(getAccountInfo(user, accountId))
+    getConfig: (user) => {
+      dispatch(getConfig(user))
     }
   }
 }
