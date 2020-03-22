@@ -66,7 +66,7 @@ class TableList extends React.Component {
 
     var tblAccountManager = [];
     var tblDuration = [];
-    var tblPullingInterval = [[pullingInterval.accountManager, pullingInterval.history, pullingInterval.orders, pullingInterval.postions, pullingInterval.quotes]]
+    var tblPullingInterval = []
     var tblSymbols = [];
 
     try {
@@ -84,12 +84,15 @@ class TableList extends React.Component {
       durations.forEach(duration => {
         tblDuration.push([duration.id, duration.title, JSON.stringify(duration.columns)])
       });
-      
+ 
+      tblPullingInterval = [[pullingInterval.accountManager, pullingInterval.history, pullingInterval.orders, pullingInterval.postions, pullingInterval.quotes]]
+    
       symbols.forEach(symbol =>{
         tblSymbols.push([symbol.s, JSON.stringify(symbol.f)])
       })
     }
     catch(err) {
+      console.log(err)
     }
     
     
