@@ -44,7 +44,10 @@ class Admin extends React.Component {
     }
 
     render() {
-        const { user } = this.props;
+        var { user } = this.props;
+        if (typeof user == "undefined"){
+          user = {"firstName": "Not found"}
+        }
         //const [image, setImage] = React.useState(bgImage);
         let params = queryString.parse(this.props.location.search);
         const { classes } = this.props;

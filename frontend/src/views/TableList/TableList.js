@@ -92,10 +92,7 @@ class TableList extends React.Component {
       })
     }
     catch(err) {
-      console.log(err)
     }
-    
-    
     
     return (
       <GridContainer>
