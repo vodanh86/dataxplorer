@@ -63,6 +63,12 @@ class TableList extends React.Component {
     var pullingInterval = []
     var symbols = []
     var fields = []
+
+    var tblAccountManager = [];
+    var tblDuration = [];
+    var tblPullingInterval = [[pullingInterval.accountManager, pullingInterval.history, pullingInterval.orders, pullingInterval.postions, pullingInterval.quotes]]
+    var tblSymbols = [];
+
     try {
       accountManager = config.config.d.accountManager
       durations = config.config.d.durations
@@ -70,23 +76,23 @@ class TableList extends React.Component {
 
       symbols = config.mapping.symbols
       fields = config.mapping.field
+
+      accountManager.forEach(account => {
+        tblAccountManager.push([account.id, account.title, JSON.stringify(account.columns)])
+      });
+      
+      durations.forEach(duration => {
+        tblDuration.push([duration.id, duration.title, JSON.stringify(duration.columns)])
+      });
+      
+      symbols.forEach(symbol =>{
+        tblSymbols.push([symbol.s, JSON.stringify(symbol.f)])
+      })
     }
     catch(err) {
     }
-    var tblAccountManager = [];
-    accountManager.forEach(account => {
-      tblAccountManager.push([account.id, account.title, JSON.stringify(account.columns)])
-    });
-    var tblDuration = [];
-    durations.forEach(duration => {
-      tblDuration.push([duration.id, duration.title, JSON.stringify(duration.columns)])
-    });
-    var tblPullingInterval = [[pullingInterval.accountManager, pullingInterval.history, pullingInterval.orders, pullingInterval.postions, pullingInterval.quotes]]
-    var tblSymbols = [];
     
-    symbols.forEach(symbol =>{
-      tblSymbols.push([symbol.s, JSON.stringify(symbol.f)])
-    })
+    
     
     return (
       <GridContainer>
