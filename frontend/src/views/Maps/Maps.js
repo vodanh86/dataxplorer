@@ -138,6 +138,9 @@ class Maps extends React.Component {
   handlePlaceOrder = () => {
     const { user } = this.props;
     this.props.placeOrder(user, this.state)
+    this.setState({
+      open: false
+    })
   }
 
   handleAlertClose = () => {
@@ -147,11 +150,13 @@ class Maps extends React.Component {
   };
 
   render() {
+    console.log(this.props.trading)
     const { classes } = this.props;
     const { user } = this.props;
     var accounts = []
     var tblState = []
     var instruments = []
+    var tblOrders = []
     try {
       var accountState = this.props.accounts.accountInfo.state.d
       tblState.push([accountState.balance, accountState.equity, accountState.unrealizedPl, JSON.stringify(accountState.amData)]);
@@ -166,6 +171,14 @@ class Maps extends React.Component {
       instruments = this.props.config.mapping.symbols
     } catch (err) {
     }
+    try {
+      var orders = this.props.trading.orders.d
+      orders.forEach(order => {
+        tblOrders.push([order.id, order.instrument, order.qty, order.side, order.type, order.filledQty, order.avgPrice, order.limitPrice, order.stopPrice, order.parentId, order.parentType, order.duration, order.status, order.lastModified])
+      })
+    } catch (err) {
+    }
+    console.log(tblOrders);
     return (
       <div>
         <GridContainer>
@@ -226,11 +239,25 @@ class Maps extends React.Component {
                 <div>
                   <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
                     Place Order
-                        </Button>
+                  </Button>
 
                 </div>
               </CardFooter>
             </Card>
+          </GridItem>
+          <GridItem xs={12} sm={12} md={12}>
+           <Card>
+                <CardHeader color="info">
+                  <h4 className={classes.cardTitleWhite}>Orders</h4>
+                </CardHeader>
+                <CardBody>
+                  <Table
+                    tableHeaderColor="warning"
+                    tableHead={["Id", "Instrument", "Qty", "Side", "Type", "FilledQty", "AvgPrice", "LimitPrice", "StopPrice", "ParentId", "ParentType", "Duration", "Status", "LastModified"]}
+                    tableData={tblOrders}
+                  />
+                </CardBody>
+              </Card>
           </GridItem>
         </GridContainer>
         <Dialog
@@ -241,11 +268,11 @@ class Maps extends React.Component {
         >
           <DialogTitle id="alert-dialog-title">Alert</DialogTitle>
           <DialogContent>
-              {this.state.alertMessage}
+            {this.state.alertMessage}
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleAlertClose} color="primary" autoFocus>
-            Ok
+              Ok
             </Button>
           </DialogActions>
         </Dialog>
@@ -331,10 +358,12 @@ function mapStateToProps(state) {
   const { accounts } = state;
   const { config } = state;
   const { user } = state.auth;
+  const { trading } = state
   return {
     user,
     accounts,
-    config
+    config,
+    trading
   };
 }
 
