@@ -36,11 +36,11 @@ export const getAccounts = (user) => ({
       }
 })
 
-export const getAccountInfo = (user, accountId) => ({
+export const getAccountInfo = (user, accountId, instrumentId) => ({
     [RSAA]: {
         endpoint: process.env.REACT_APP_SSO_URL + '/api/account/getAccountInfo/',
         method: 'POST',
-        body: JSON.stringify({user: user, accountId: accountId}),
+        body: JSON.stringify({user: user, accountId: accountId, instrumentId: instrumentId}),
         headers: { 'Content-Type': 'application/json' },
         types: [
             GET_ACCOUNT_INFO_REQUEST, GET_ACCOUNT_INFO_SUCCESS, GET_ACCOUNT_INFO_FAILURE

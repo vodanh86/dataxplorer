@@ -53,12 +53,12 @@ def update_token(request):
 
     if (profile.bsc_code != code):
         bsc_tokens = bsc_api.get_token(code)
+        print(bsc_tokens)
         profile.bsc_code = code
         profile.bsc_token = bsc_tokens.get("access_token")
         profile.bsc_refresh_token = bsc_tokens.get("refresh_token")
         profile.expires_in = datetime.now() + timedelta(seconds=bsc_tokens.get("expires_in"))
         profile.save()
-        print(profile)
 
     user["bsc_token"] = profile.bsc_token
     user["bsc_refresh_token"] = profile.bsc_refresh_token
@@ -128,11 +128,15 @@ def get_account_info(request):
     user = post_data.get("user", {})
     bsc_token = user.get("bsc_token")
     account_id = post_data.get("accountId")
+    instrument_id = post_data.get("instrumentId")
     state = bsc_api.get_state(bsc_token, account_id)
     orders = bsc_api.get_orders(bsc_token, account_id)
+    positions = bsc_api.get_positions(bsc_token, account_id)
+    executions = bsc_api.get_executions(bsc_token, account_id, instrument_id)
+    orders_history = bsc_api.get_orders_history(bsc_token, account_id)
     instruments = bsc_api.get_instruments(bsc_token, account_id)
     instruments["d"] = instruments["d"][:100]
-    return JsonResponse({"accountInfo": {"state": state, "orders": orders, "instruments": instruments}})
+    return JsonResponse({"accountInfo": {"state": state, "orders": orders, "positions": positions, "instruments": instruments, "executions": executions, "orders_history": orders_history}})
 
 
 @csrf_exempt

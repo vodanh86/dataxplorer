@@ -26,7 +26,7 @@ ReactDOM.render((
           <PrivateRoute exact path="/" component={Admin}/>
           <Route path="/login" component={Login} />
           <Route path="/logout" component={Logout} />
-          <Route path="/admin" component={Admin} />
+          <PrivateRoute path="/admin" component={Admin} />
         </Switch>
       </ConnectedRouter>
     </PersistGate>

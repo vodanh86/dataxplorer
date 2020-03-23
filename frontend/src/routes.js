@@ -39,10 +39,10 @@ import RTLPage from "views/RTLPage/RTLPage.js";
 const dashboardRoutes = [
   {
     path: "/dashboard",
-    name: "Dashboard",
+    name: "Trading",
     rtlName: "لوحة القيادة",
     icon: Dashboard,
-    component: DashboardPage,
+    component: Maps,
     layout: "/admin"
   },
   {
@@ -77,7 +77,7 @@ const dashboardRoutes = [
     component: MarketData,
     layout: "/admin"
   },
-  {
+ /* {
     path: "/maps",
     name: "Trading",
     rtlName: "خرائط",
@@ -92,7 +92,7 @@ const dashboardRoutes = [
     icon: Notifications,
     component: NotificationsPage,
     layout: "/admin"
-  },
+  },*/
   {
     path: "/settings",
     name: "settings",

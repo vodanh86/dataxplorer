@@ -63,6 +63,24 @@ class BscApi():
             self.api_server + "accounts/" + account_id + "/orders/", data, headers=self._get_header(bsc_token))
         return response.json()
 
+    def get_positions(self, bsc_token, account_id):
+        data = {}
+        response = requests.get(
+            self.api_server + "accounts/" + account_id + "/positions/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
+    def get_executions(self, bsc_token, account_id, instrument_id):
+        data = {"instrument": instrument_id}
+        response = requests.get(
+            self.api_server + "accounts/" + account_id + "/executions/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
+    def get_orders_history(self, bsc_token, account_id):
+        data = {}
+        response = requests.get(
+            self.api_server + "accounts/" + account_id + "/ordersHistory/", data, headers=self._get_header(bsc_token))
+        return response.json()
+
     def get_instruments(self, bsc_token, account_id):
         data = {}
         response = requests.get(

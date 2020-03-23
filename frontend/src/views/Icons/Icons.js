@@ -124,7 +124,7 @@ class MarketData extends React.Component {
             </CardHeader>
             <CardBody>
             <div>
-            <FormControl className={classes.formControl}>
+              <FormControl className={classes.formControl}>
                 <InputLabel htmlFor="age-native-helper">Instrument</InputLabel>
                   <NativeSelect
                     inputProps={{
