@@ -123,6 +123,17 @@ def get_accounts(request):
 
 
 @csrf_exempt
+def place_order(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    order = post_data.get("order", {})
+    order_status = bsc_api.place_order(bsc_token, order.get("accountId"), order.get(
+        "instrumentId"), order.get("quantity"), order.get("side"), order.get("type"))
+    return JsonResponse({"orders": order_status})
+
+
+@csrf_exempt
 def get_account_info(request):
     post_data = json.loads(request.body)
     user = post_data.get("user", {})

@@ -36,5 +36,6 @@ urlpatterns = [
     url(r'^api/account/getAccounts/$', main_views.get_accounts, name='get_accounts'),
     url(r'^api/account/getAccountInfo/$', main_views.get_account_info, name='get_accounts'),
     url(r'^api/marketData/getMarketData/$', main_views.get_market_data, name='get_market_data'),
+    url(r'^api/trading/placeOrder/$', main_views.place_order, name='place_order'),
     url(r'^api/echo/$', EchoView.as_view())
 ]

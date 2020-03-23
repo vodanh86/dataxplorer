@@ -98,3 +98,12 @@ class BscApi():
         response = requests.get(
             self.api_server + "depth/", data, headers=self._get_header(bsc_token))
         return response.json()
+
+    def place_order(self, bsc_token, account_id, instrument_id, quantity, side, type):
+        data = {"accountId": account_id, "instrument": instrument_id,
+                "qty": quantity, "side": side, "type": type}
+        print(data)
+        response = requests.get(
+            self.api_server + "accounts/" + account_id + "/orders/", data, headers=self._get_header(bsc_token))
+        print(response)
+        return response.json()

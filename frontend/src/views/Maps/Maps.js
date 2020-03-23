@@ -9,8 +9,9 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
-import {getAccounts} from  '../../actions/account'
-import {getConfig} from  '../../actions/config'
+import { getAccounts } from '../../actions/account'
+import { getConfig } from '../../actions/config'
+import { placeOrder } from '../../actions/trading'
 // core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -78,40 +79,49 @@ const styles = {
   }
 };
 
-class Maps extends React.Component { 
+class Maps extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      alertMessage: "",
+      alertOpen: false,
       open: false,
-      accountID: "",
-      instrumentID: ""
+      accountId: "",
+      instrumentId: "",
+      quantity: 10,
+      side: "buy",
+      type: "limit"
     }
   }
 
   componentDidMount() {
-    const {user} = this.props;
+    const { user } = this.props;
     this.props.getAccounts(user);
     this.props.getConfig(user);
   }
 
   handleOnChange = (event) => {
-    const {user} = this.props;
+    const { user } = this.props;
     this.setState(
-      {accountID: event.target.value}
+      { accountId: event.target.value }
     )
     //this.props.refreshToken(user);
   }
 
   handleInstrumentOnChange = (event) => {
     this.setState(
-      {instrumentID: event.target.value}
+      { instrumentId: event.target.value }
     )
     //this.props.refreshToken(user);
   }
 
   handleClickOpen = () => {
-    if (this.state.accountID == "" || this.state.instrumentID == ""){
-      alert("Please select accountId and instrumentId")
+    if (this.state.accountId == "" || this.state.instrumentId == "") {
+      this.setState(
+        {
+          alertOpen: true,
+          alertMessage: "Please select accountId and instrumentId"
+        })
     } else {
       this.setState({
         open: true
@@ -125,167 +135,204 @@ class Maps extends React.Component {
     })
   };
 
-  render(){
+  handlePlaceOrder = () => {
+    const { user } = this.props;
+    this.props.placeOrder(user, this.state)
+  }
+
+  handleAlertClose = () => {
+    this.setState({
+      alertOpen: false,
+    })
+  };
+
+  render() {
     const { classes } = this.props;
-    const {user} = this.props;
+    const { user } = this.props;
     var accounts = []
     var tblState = []
     var instruments = []
     try {
       var accountState = this.props.accounts.accountInfo.state.d
       tblState.push([accountState.balance, accountState.equity, accountState.unrealizedPl, JSON.stringify(accountState.amData)]);
-    } catch(err) {
+    } catch (err) {
     }
     try {
       accounts = this.props.accounts.accounts.d
     }
-    catch(err) {
+    catch (err) {
     }
     try {
       instruments = this.props.config.mapping.symbols
     } catch (err) {
     }
     return (
-        <div>
-          <GridContainer>
-            <GridItem xs={12} sm={12} md={12}>
-                <Card>
-                  <CardHeader color="success">
-                    <h4 className={classes.cardTitleWhite}>Accounts</h4>
-                    <p className={classes.cardCategoryWhite}>
-                    Get a list of accounts owned by the user.
+      <div>
+        <GridContainer>
+          <GridItem xs={12} sm={12} md={12}>
+            <Card>
+              <CardHeader color="success">
+                <h4 className={classes.cardTitleWhite}>Accounts</h4>
+                <p className={classes.cardCategoryWhite}>
+                  Get a list of accounts owned by the user.
                     </p>
-                  </CardHeader>
-                  <CardBody>
-                    <GridContainer>
-                    <GridItem xs={2} sm={2} md={2}>
-                      <FormControl className={classes.formControl}>
+              </CardHeader>
+              <CardBody>
+                <GridContainer>
+                  <GridItem xs={2} sm={2} md={2}>
+                    <FormControl className={classes.formControl}>
                       <InputLabel htmlFor="age-native-helper">Account</InputLabel>
-                        <NativeSelect
-                          inputProps={{
-                            name: 'age',
-                            id: 'age-native-helper',
-                          }}
-                          onChange={(event) => this.handleOnChange(event)}
-                        >
-                          <option aria-label="None" value="" />
-                          {accounts.map(item => {
-                            return <option value={item.id} key={item.id}>{item.name}</option>;
-                          })}
-                        </NativeSelect>
+                      <NativeSelect
+                        inputProps={{
+                          name: 'age',
+                          id: 'age-native-helper',
+                        }}
+                        onChange={(event) => this.handleOnChange(event)}
+                      >
+                        <option aria-label="None" value="" />
+                        {accounts.map(item => {
+                          return <option value={item.id} key={item.id}>{item.name}</option>;
+                        })}
+                      </NativeSelect>
                       <FormHelperText>Select account</FormHelperText>
-                    </FormControl> 
-                    </GridItem>
-                    <GridItem xs={4} sm={4} md={4}>
-                    </GridItem>
-                    <GridItem xs={3} sm={3} md={3}>
-                      <FormControl className={classes.formControl}>
-                        <InputLabel htmlFor="age-native-helper">Instrument</InputLabel>
-                          <NativeSelect
-                            inputProps={{
-                              name: 'age',
-                              id: 'age-native-helper',
-                            }}
-                            onChange={(event) => this.handleInstrumentOnChange(event)}
-                          >
-                            <option aria-label="None" value="" />
-                            {instruments.map(item => {
-                              return <option value={item.f[0]} key={item.f[0]}>{item.s}</option>;
-                            })}
-                          </NativeSelect>
-                        <FormHelperText>Select instrument</FormHelperText>
-                      </FormControl> 
-                   
-                    </GridItem>
-                    <GridItem xs={3} sm={3} md={3}>
-                    </GridItem>
-                    </GridContainer>
-                        
-                  </CardBody>
-                  <CardFooter>
-                      <div>
-                        <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
-                          Place Order
+                    </FormControl>
+                  </GridItem>
+                  <GridItem xs={4} sm={4} md={4}>
+                  </GridItem>
+                  <GridItem xs={3} sm={3} md={3}>
+                    <FormControl className={classes.formControl}>
+                      <InputLabel htmlFor="age-native-helper">Instrument</InputLabel>
+                      <NativeSelect
+                        inputProps={{
+                          name: 'age',
+                          id: 'age-native-helper',
+                        }}
+                        onChange={(event) => this.handleInstrumentOnChange(event)}
+                      >
+                        <option aria-label="None" value="" />
+                        {instruments.map(item => {
+                          return <option value={item.f[0]} key={item.f[0]}>{item.s}</option>;
+                        })}
+                      </NativeSelect>
+                      <FormHelperText>Select instrument</FormHelperText>
+                    </FormControl>
+
+                  </GridItem>
+                  <GridItem xs={3} sm={3} md={3}>
+                  </GridItem>
+                </GridContainer>
+              </CardBody>
+              <CardFooter>
+                <div>
+                  <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+                    Place Order
                         </Button>
-                        <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
-                          <DialogTitle id="form-dialog-title">Place order</DialogTitle>
-                          <DialogContent>
-                              <GridContainer>
-                                <GridItem xs={12} sm={12} md={6}> 
-                                  <CustomInput
-                                    labelText="Account Id"
-                                    id="accountId"
-                                    formControlProps={{
-                                      fullWidth: true
-                                    }}
-                                    disabled="true"
-                                    value={this.state.accountID}
-                                  />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={6}>
-                                  <CustomInput
-                                    labelText="Instrument Id"
-                                    id="instrumentId"
-                                    formControlProps={{
-                                      fullWidth: true
-                                    }}
-                                    disabled="true"
-                                    value={this.state.instrumentID}
-                                  />
-                                </GridItem>
-                              </GridContainer>
-                              <GridContainer>
-                                <GridItem xs={12} sm={12} md={6}>
-                                  <TextField
-                                    id="standard-number"
-                                    label="Quantity"
-                                    type="number"
-                                    InputLabelProps={{
-                                      shrink: true,
-                                    }}
-                                  />
-                                </GridItem>
-                              </GridContainer>
-                              <GridContainer>
-                                <GridItem xs={12} sm={12} md={12}>
-                                  <CustomInput
-                                    labelText="Expired date"
-                                    id="city"
-                                    formControlProps={{
-                                      fullWidth: true
-                                    }}
-                                    disabled="true"
-                                    value={user.expires_in}
-                                  />
-                                </GridItem>
-                              </GridContainer>
-                          </DialogContent>
-                          <DialogActions>
-                            <Button onClick={this.handleClose} color="primary">
-                              Cancel
-                            </Button>
-                            <Button onClick={this.handleClose} color="primary">
-                              Ok
-                            </Button>
-                          </DialogActions>
-                        </Dialog>
-                      </div>
-                  </CardFooter>
-                </Card>
-            </GridItem>
-          </GridContainer>    
-      </div>  
+
+                </div>
+              </CardFooter>
+            </Card>
+          </GridItem>
+        </GridContainer>
+        <Dialog
+          open={this.state.alertOpen}
+          onClose={this.handleAlertClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Alert</DialogTitle>
+          <DialogContent>
+              {this.state.alertMessage}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleAlertClose} color="primary" autoFocus>
+            Ok
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
+          <DialogTitle id="form-dialog-title">Place order</DialogTitle>
+          <DialogContent>
+            <GridContainer>
+              <GridItem xs={12} sm={12} md={6}>
+                <CustomInput
+                  labelText="Account Id"
+                  id="accountId"
+                  formControlProps={{
+                    fullWidth: true
+                  }}
+                  disabled="true"
+                  value={this.state.accountId}
+                />
+              </GridItem>
+              <GridItem xs={12} sm={12} md={6}>
+                <CustomInput
+                  labelText="Instrument Id"
+                  id="instrumentId"
+                  formControlProps={{
+                    fullWidth: true
+                  }}
+                  disabled="true"
+                  value={this.state.instrumentId}
+                />
+              </GridItem>
+            </GridContainer>
+            <GridContainer>
+              <GridItem xs={12} sm={12} md={6}>
+                <TextField
+                  id="standard-number"
+                  label="Quantity"
+                  type="number"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={this.state.quantity}
+                />
+              </GridItem>
+              <GridItem xs={12} sm={12} md={6}>
+                <TextField
+                  id="standard-number"
+                  label="Side"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={this.state.side}
+                />
+              </GridItem>
+            </GridContainer>
+            <GridContainer>
+              <GridItem xs={12} sm={12} md={12}>
+                <CustomInput
+                  labelText="Type"
+                  id="city"
+                  formControlProps={{
+                    fullWidth: true
+                  }}
+                  disabled="true"
+                  value={this.state.type}
+                />
+              </GridItem>
+            </GridContainer>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Cancel
+                </Button>
+            <Button onClick={this.handlePlaceOrder} color="primary">
+              Ok
+                </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  console.log(state)
   const { accounts } = state;
   const { config } = state;
   const { user } = state.auth;
   return {
-    user, 
+    user,
     accounts,
     config
   };
@@ -298,6 +345,9 @@ const mapDispatchToProps = dispatch => {
     },
     getConfig: (user) => {
       dispatch(getConfig(user))
+    },
+    placeOrder: (user, order) => {
+      dispatch(placeOrder(user, order))
     }
   }
 }

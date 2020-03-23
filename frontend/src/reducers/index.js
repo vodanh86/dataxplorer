@@ -5,6 +5,7 @@ import echo, * as fromEcho from './echo.js'
 import config, * as fromConfig from './config.js'
 import accounts, * as accountConfig from './account.js'
 import marketData, * as fromMarketData from './marketData.js'
+import trading, * as fromTrading from './trading.js'
 
 export default combineReducers({
   auth: auth,
@@ -12,6 +13,7 @@ export default combineReducers({
   config: config,
   accounts: accounts,
   marketData: marketData,
+  trading: trading,
   router: routerReducer
 })
 
