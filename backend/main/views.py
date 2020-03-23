@@ -100,7 +100,6 @@ def get_config(request):
     bsc_token = user.get("bsc_token")
     config = bsc_api.get_config(bsc_token)
     mapping = bsc_api.get_mapping(bsc_token)
-    print(mapping)
     mapping["symbols"] = mapping["symbols"][:100]
     return JsonResponse({"config": config, "mapping": mapping})
 

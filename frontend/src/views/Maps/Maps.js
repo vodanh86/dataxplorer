@@ -18,6 +18,8 @@ import CardBody from "components/Card/CardBody.js";
 import BugReport from "@material-ui/icons/BugReport";
 import Code from "@material-ui/icons/Code";
 import Cloud from "@material-ui/icons/Cloud";
+
+import NativeSelect from '@material-ui/core/NativeSelect';
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -25,7 +27,7 @@ import Table from "components/Table/Table.js";
 import Tasks from "components/Tasks/Tasks.js";
 import CustomTabs from "components/CustomTabs/CustomTabs.js";
 import { bugs, website, server } from "variables/general.js";
-
+import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -36,6 +38,10 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CardFooter from "components/Card/CardFooter";
 
 const styles = {
+  formControl: {
+    margin: 5,
+    minWidth: 200,
+  },
   typo: {
     paddingLeft: "25%",
     marginBottom: "40px",
@@ -97,7 +103,6 @@ class Maps extends React.Component {
   }
 
   handleInstrumentOnChange = (event) => {
-    const {user} = this.props;
     this.setState(
       {instrumentID: event.target.value}
     )
@@ -105,9 +110,13 @@ class Maps extends React.Component {
   }
 
   handleClickOpen = () => {
-    this.setState({
-      open: true
-    })
+    if (this.state.accountID == "" || this.state.instrumentID == ""){
+      alert("Please select accountId and instrumentId")
+    } else {
+      this.setState({
+        open: true
+      })
+    }
   };
 
   handleClose = () => {
@@ -118,6 +127,7 @@ class Maps extends React.Component {
 
   render(){
     const { classes } = this.props;
+    const {user} = this.props;
     var accounts = []
     var tblState = []
     var instruments = []
@@ -150,41 +160,44 @@ class Maps extends React.Component {
                     <GridContainer>
                     <GridItem xs={2} sm={2} md={2}>
                       <FormControl className={classes.formControl}>
-                        <InputLabel id="demo-simple-select-helper-label">Account</InputLabel>
-                          <Select
-                            xs={12} sm={12} md={12}
-                            labelId="demo-simple-select-helper-label"
-                            id="demo-simple-select-helper"
-                            onChange={(event) => this.handleOnChange(event)}
-                          >
+                      <InputLabel htmlFor="age-native-helper">Account</InputLabel>
+                        <NativeSelect
+                          inputProps={{
+                            name: 'age',
+                            id: 'age-native-helper',
+                          }}
+                          onChange={(event) => this.handleOnChange(event)}
+                        >
+                          <option aria-label="None" value="" />
                           {accounts.map(item => {
-                            return <MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>;
+                            return <option value={item.id} key={item.id}>{item.name}</option>;
                           })}
-                        </Select>
-                        <FormHelperText>Select account</FormHelperText>
-                      </FormControl>  
+                        </NativeSelect>
+                      <FormHelperText>Select account</FormHelperText>
+                    </FormControl> 
                     </GridItem>
                     <GridItem xs={4} sm={4} md={4}>
-                        <h5>Account id: {this.state.accountID}</h5>
                     </GridItem>
                     <GridItem xs={3} sm={3} md={3}>
-                    <FormControl className={classes.formControl}>
-                        <InputLabel id="demo-simple-select-helper-label">Instrument</InputLabel>
-                          <Select
-                            xs={12} sm={12} md={12}
-                            labelId="demo-simple-select-helper-label"
-                            id="demo-simple-select-helper"
+                      <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="age-native-helper">Instrument</InputLabel>
+                          <NativeSelect
+                            inputProps={{
+                              name: 'age',
+                              id: 'age-native-helper',
+                            }}
                             onChange={(event) => this.handleInstrumentOnChange(event)}
                           >
-                          {instruments.map(item => {
-                            return <MenuItem value={item.f[0]} key={item.f[0]}>{item.s}</MenuItem>;
-                          })}
-                        </Select>
-                        <FormHelperText>Select account</FormHelperText>
-                      </FormControl>  
+                            <option aria-label="None" value="" />
+                            {instruments.map(item => {
+                              return <option value={item.f[0]} key={item.f[0]}>{item.s}</option>;
+                            })}
+                          </NativeSelect>
+                        <FormHelperText>Select instrument</FormHelperText>
+                      </FormControl> 
+                   
                     </GridItem>
                     <GridItem xs={3} sm={3} md={3}>
-                    <h5>Instrument id: {this.state.instrumentID}</h5>
                     </GridItem>
                     </GridContainer>
                         
@@ -197,17 +210,55 @@ class Maps extends React.Component {
                         <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
                           <DialogTitle id="form-dialog-title">Place order</DialogTitle>
                           <DialogContent>
-                            <DialogContentText>
-                              Place a new order.
-                            </DialogContentText>
-                            <TextField
-                              autoFocus
-                              margin="dense"
-                              id="name"
-                              label="Email Address"
-                              type="email"
-                              fullWidth
-                            />
+                              <GridContainer>
+                                <GridItem xs={12} sm={12} md={6}> 
+                                  <CustomInput
+                                    labelText="Account Id"
+                                    id="accountId"
+                                    formControlProps={{
+                                      fullWidth: true
+                                    }}
+                                    disabled="true"
+                                    value={this.state.accountID}
+                                  />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={6}>
+                                  <CustomInput
+                                    labelText="Instrument Id"
+                                    id="instrumentId"
+                                    formControlProps={{
+                                      fullWidth: true
+                                    }}
+                                    disabled="true"
+                                    value={this.state.instrumentID}
+                                  />
+                                </GridItem>
+                              </GridContainer>
+                              <GridContainer>
+                                <GridItem xs={12} sm={12} md={6}>
+                                  <TextField
+                                    id="standard-number"
+                                    label="Quantity"
+                                    type="number"
+                                    InputLabelProps={{
+                                      shrink: true,
+                                    }}
+                                  />
+                                </GridItem>
+                              </GridContainer>
+                              <GridContainer>
+                                <GridItem xs={12} sm={12} md={12}>
+                                  <CustomInput
+                                    labelText="Expired date"
+                                    id="city"
+                                    formControlProps={{
+                                      fullWidth: true
+                                    }}
+                                    disabled="true"
+                                    value={user.expires_in}
+                                  />
+                                </GridItem>
+                              </GridContainer>
                           </DialogContent>
                           <DialogActions>
                             <Button onClick={this.handleClose} color="primary">

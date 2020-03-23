@@ -27,6 +27,7 @@ import Table from "components/Table/Table.js";
 import Tasks from "components/Tasks/Tasks.js";
 import CustomTabs from "components/CustomTabs/CustomTabs.js";
 import { bugs, website, server } from "variables/general.js";
+import NativeSelect from '@material-ui/core/NativeSelect';
 
 const styles = {
   typo: {
@@ -95,11 +96,12 @@ class MarketData extends React.Component {
     try {
       var quotes = this.props.marketData.quotes.d
       quotes.forEach(quote => {
-          tblQuotes.push([quote.v.ch.toString(), quote.v.chp.toString(), quote.v.lp.toString(), quote.v.open_price.toString(), quote.v.high_price.toString(), quote.v.low_price.toString(), quote.v.prev_close_price.toString(), quote.v.volume.toString()])
+          tblQuotes.push([quote.v.ch.toString(), quote.v.chp.toString(), quote.v.lp.toString(), quote.v.high_price.toString(), quote.v.low_price.toString(), quote.v.prev_close_price.toString(), quote.v.volume.toString()])
         }
       )
       //tblQuotes.push([accountState.balance, accountState.equity, accountState.unrealizedPl, JSON.stringify(accountState.amData)]);
     } catch(err) {
+      console.log(err)
     }
     try {
       var depth = this.props.marketData.depth.d.d;
@@ -109,7 +111,6 @@ class MarketData extends React.Component {
       for(var i=0; i< maxLen; i++){
         tblDepth.push([bids[i], asks[i]])
       }
-      console.log(tblDepth);
     }
     catch(err) {
     }
@@ -123,20 +124,22 @@ class MarketData extends React.Component {
             </CardHeader>
             <CardBody>
             <div>
-          <FormControl className={classes.formControl}>
-            <InputLabel id="demo-simple-select-helper-label">Instrument</InputLabel>
-            <Select
-              xs={12} sm={12} md={12}
-              labelId="demo-simple-select-helper-label"
-              id="demo-simple-select-helper"
-              onChange={(event) => this.handleOnChange(event)}
-            >
-              {instruments.map(item => {
-                return <MenuItem value={item.f[0]} key={item.f[0]}>{item.s}</MenuItem>;
-              })}
-            </Select>
-            <FormHelperText>Select instrument</FormHelperText>
-          </FormControl>       
+            <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="age-native-helper">Instrument</InputLabel>
+                  <NativeSelect
+                    inputProps={{
+                      name: 'age',
+                      id: 'age-native-helper',
+                    }}
+                    onChange={(event) => this.handleOnChange(event)}
+                  >
+                    <option aria-label="None" value="" />
+                    {instruments.map(item => {
+                      return <option value={item.f[0]} key={item.f[0]}>{item.s}</option>;
+                    })}
+                  </NativeSelect>
+                <FormHelperText>Select instrument</FormHelperText>
+              </FormControl>     
         </div>
          
         </CardBody>
@@ -153,7 +156,7 @@ class MarketData extends React.Component {
                 <CardBody>
                   <Table
                     tableHeaderColor="warning"
-                    tableHead={["Ch", "Chp", "Lp", "Open_price", "High_price", "Low_price", "Pre_close_price", "Volume"]}
+                    tableHead={["Ch", "Chp", "Lp", "High_price", "Low_price", "Pre_close_price", "Volume"]}
                     tableData={tblQuotes}
                   />
                 </CardBody>

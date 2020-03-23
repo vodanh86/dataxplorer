@@ -25,6 +25,7 @@ import Table from "components/Table/Table.js";
 import Tasks from "components/Tasks/Tasks.js";
 import CustomTabs from "components/CustomTabs/CustomTabs.js";
 import { bugs, website, server } from "variables/general.js";
+import NativeSelect from '@material-ui/core/NativeSelect';
 
 const styles = {
   typo: {
@@ -113,23 +114,23 @@ class Account extends React.Component {
               </p>
             </CardHeader>
             <CardBody>
-            <div>
-          <FormControl className={classes.formControl}>
-            <InputLabel id="demo-simple-select-helper-label">Account</InputLabel>
-            <Select
-              xs={12} sm={12} md={12}
-              labelId="demo-simple-select-helper-label"
-              id="demo-simple-select-helper"
-              onChange={(event) => this.handleOnChange(event)}
-            >
-              {accounts.map(item => {
-                return <MenuItem value={item.id} key={item.id}>{item.name}</MenuItem>;
-              })}
-            </Select>
-            <FormHelperText>Select account</FormHelperText>
-          </FormControl>       
-        </div>
-         
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="age-native-helper">Account</InputLabel>
+                  <NativeSelect
+                    inputProps={{
+                      name: 'age',
+                      id: 'age-native-helper',
+                    }}
+                    onChange={(event) => this.handleOnChange(event)}
+                  >
+                    <option aria-label="None" value="" />
+                    {accounts.map(item => {
+                      return <option value={item.id} key={item.id}>{item.name}</option>;
+                    })}
+                  </NativeSelect>
+                <FormHelperText>Select account</FormHelperText>
+              </FormControl>  
+            
         </CardBody>
         <div>
           <GridContainer>
