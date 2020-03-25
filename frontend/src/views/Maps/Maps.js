@@ -9,7 +9,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import { Redirect } from 'react-router'
 import {getUpdatedToken} from 'helpers/utils'
-
+import {formatDatetime} from 'helpers/utils'
 import { getAccounts } from '../../actions/account'
 import { getConfig } from '../../actions/config'
 import { placeOrder } from '../../actions/trading'
@@ -178,7 +178,7 @@ class Maps extends React.Component {
     try {
       var orders = this.props.trading.orders.d
       orders.forEach(order => {
-        tblOrders.push([order.id, order.instrument, order.qty, order.side, order.type, order.filledQty, order.avgPrice, order.limitPrice, order.stopPrice, order.parentId, order.parentType, order.duration, order.status, order.lastModified])
+        tblOrders.push([order.id, order.instrument, order.qty, order.side, order.type, order.filledQty, order.avgPrice, order.limitPrice, order.stopPrice, order.parentId, order.parentType, order.duration, order.status, formatDatetime(order.lastModified)])
       })
     } catch (err) {
     }
