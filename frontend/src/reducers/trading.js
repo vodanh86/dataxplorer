@@ -10,6 +10,10 @@ export default (state=initialState, action) => {
       return {
         orders: action.payload.orders,
       }
+    case trading.GET_TRADING_SUCCESS:
+      return {
+        orders: action.payload.orders,
+      }
     default:
       return state
   }

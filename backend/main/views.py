@@ -100,7 +100,8 @@ def get_config(request):
     bsc_token = user.get("bsc_token")
     config = bsc_api.get_config(bsc_token)
     mapping = bsc_api.get_mapping(bsc_token)
-    mapping["symbols"] = mapping["symbols"][:100]
+    if "symbols" in mapping:
+        mapping["symbols"] = mapping["symbols"][:100]
     return JsonResponse({"config": config, "mapping": mapping})
 
 
@@ -160,3 +161,13 @@ def get_market_data(request):
     depth = bsc_api.get_depth(bsc_token, symbol)
     #instruments = bsc_api.get_instruments(bsc_token, symbol)
     return JsonResponse({"quotes": quotes, "depth": depth})
+
+
+@csrf_exempt
+def get_trading_info(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    account_id = post_data.get("accountId")
+    orders = bsc_api.get_orders(bsc_token, account_id)
+    return JsonResponse({"orders": orders})

@@ -7,11 +7,14 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import { Redirect } from 'react-router'
+import {getUpdatedToken} from 'helpers/utils'
 
 import { getAccounts } from '../../actions/account'
 import { getConfig } from '../../actions/config'
 import { placeOrder } from '../../actions/trading'
+import { getTradingInfor } from '../../actions/trading'
+
 // core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -105,7 +108,7 @@ class Maps extends React.Component {
     this.setState(
       { accountId: event.target.value }
     )
-    //this.props.refreshToken(user);
+    this.props.getTradingInfor(user, event.target.value)
   }
 
   handleInstrumentOnChange = (event) => {
@@ -166,6 +169,7 @@ class Maps extends React.Component {
       accounts = this.props.accounts.accounts.d
     }
     catch (err) {
+      //getUpdatedToken()
     }
     try {
       instruments = this.props.config.mapping.symbols
@@ -377,6 +381,9 @@ const mapDispatchToProps = dispatch => {
     },
     placeOrder: (user, order) => {
       dispatch(placeOrder(user, order))
+    },
+    getTradingInfor: (user, accountId) => {
+      dispatch(getTradingInfor(user, accountId))
     }
   }
 }
