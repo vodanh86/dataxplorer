@@ -1,4 +1,6 @@
 import requests
+import datetime
+import json
 from django.conf import settings
 
 
@@ -101,9 +103,8 @@ class BscApi():
 
     def place_order(self, bsc_token, account_id, instrument_id, quantity, side, type):
         data = {"accountId": account_id, "instrument": instrument_id,
-                "qty": quantity, "side": side, "type": type}
-        print(data)
-        response = requests.get(
-            self.api_server + "accounts/" + account_id + "/orders/", data, headers=self._get_header(bsc_token))
-        print(response)
+                "qty": quantity, "side": side, "type": type,
+                "requestId": datetime.datetime.now().strftime('%s')}
+        response = requests.post(
+            self.api_server + "accounts/" + account_id + "/orders", json.dumps(data), headers=self._get_header(bsc_token))
         return response.json()

@@ -11,14 +11,24 @@ export const GET_TRADING_REQUEST = '@@trading/GET_TRADING_REQUEST';
 export const GET_TRADING_SUCCESS = '@@trading/GET_TRADING_SUCCESS';
 export const GET_TRADING_FAILURE = '@@trading/GET_TRADING_FAILURE';
 
-export const placeOrder = (user, order) => ({
+export const placeOrder = (user, order, callback) => ({
   [RSAA]: {
       endpoint: '/api/trading/placeOrder/',
       method: 'POST',
       body: JSON.stringify({user: user, order: order}),
       headers: withAuth({ 'Content-Type': 'application/json' }),
       types: [
-        PLACE_ORDER_REQUEST, PLACE_ORDER_SUCCESS, PLACE_ORDER_FAILURE
+        PLACE_ORDER_REQUEST, 
+        {
+          type: PLACE_ORDER_SUCCESS,
+          payload: (action, state, res) => {
+              return res.json().then((data) => {
+                 callback(data); // <== call second action here
+                 return data; // <== payload for the SUCCESS action
+              });
+            }
+        },
+        PLACE_ORDER_FAILURE
       ]
   }
 })

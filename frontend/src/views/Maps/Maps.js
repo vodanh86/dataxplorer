@@ -93,7 +93,7 @@ class Maps extends React.Component {
       instrumentId: "",
       quantity: 10,
       side: "buy",
-      type: "limit"
+      type: "market"
     }
   }
 
@@ -140,22 +140,31 @@ class Maps extends React.Component {
 
   handlePlaceOrder = () => {
     const { user } = this.props;
-    this.props.placeOrder(user, this.state)
+    var callback = (data) => { 
+      this.setState({
+        open: false,
+        alertOpen: true,
+        alertMessage: "Place order successfully"
+      })
+    }
+    this.props.placeOrder(user, this.state, callback)
     this.setState({
       open: false
     })
   }
 
   handleAlertClose = () => {
+    const { user } = this.props;
+    this.props.getTradingInfor(user, this.state.accountId) 
     this.setState({
       alertOpen: false,
     })
   };
 
   render() {
-    console.log(this.props.trading)
     const { classes } = this.props;
     const { user } = this.props;
+    const {orderStatus} = this.props.trading;
     var accounts = []
     var tblState = []
     var instruments = []
@@ -178,11 +187,10 @@ class Maps extends React.Component {
     try {
       var orders = this.props.trading.orders.d
       orders.forEach(order => {
-        tblOrders.push([order.id, order.instrument, order.qty, order.side, order.type, order.filledQty, order.avgPrice, order.limitPrice, order.stopPrice, order.parentId, order.parentType, order.duration, order.status, formatDatetime(order.lastModified)])
+        tblOrders.push([order.id, order.instrument, order.qty, order.side, order.type, order.filledQty, order.avgPrice, order.limitPrice, order.stopPrice, order.parentId, order.duration, order.status, formatDatetime(order.lastModified)])
       })
     } catch (err) {
     }
-    console.log(tblOrders);
     return (
       <div>
         <GridContainer>
@@ -257,7 +265,7 @@ class Maps extends React.Component {
                 <CardBody>
                   <Table
                     tableHeaderColor="warning"
-                    tableHead={["Id", "Instrument", "Qty", "Side", "Type", "FilledQty", "AvgPrice", "LimitPrice", "StopPrice", "ParentId", "ParentType", "Duration", "Status", "LastModified"]}
+                    tableHead={["Id", "Instrument", "Qty", "Side", "Type", "FilledQty", "AvgPrice", "LimitPrice", "StopPrice", "ParentId", "Duration", "Status", "LastModified"]}
                     tableData={tblOrders}
                   />
                 </CardBody>
@@ -379,8 +387,8 @@ const mapDispatchToProps = dispatch => {
     getConfig: (user) => {
       dispatch(getConfig(user))
     },
-    placeOrder: (user, order) => {
-      dispatch(placeOrder(user, order))
+    placeOrder: (user, order, callback) => {
+      dispatch(placeOrder(user, order, callback))
     },
     getTradingInfor: (user, accountId) => {
       dispatch(getTradingInfor(user, accountId))

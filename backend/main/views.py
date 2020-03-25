@@ -131,7 +131,7 @@ def place_order(request):
     order = post_data.get("order", {})
     order_status = bsc_api.place_order(bsc_token, order.get("accountId"), order.get(
         "instrumentId"), order.get("quantity"), order.get("side"), order.get("type"))
-    return JsonResponse({"orders": order_status})
+    return JsonResponse({"order_status": order_status})
 
 
 @csrf_exempt
