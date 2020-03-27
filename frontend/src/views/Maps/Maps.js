@@ -14,14 +14,12 @@ import { getAccounts } from '../../actions/account'
 import { getConfig } from '../../actions/config'
 import { placeOrder } from '../../actions/trading'
 import { getTradingInfor } from '../../actions/trading'
-
+import { cancelOrder } from '../../actions/trading'
 // core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import BugReport from "@material-ui/icons/BugReport";
-import Code from "@material-ui/icons/Code";
-import Cloud from "@material-ui/icons/Cloud";
+import MaterialTable from 'material-table';
 
 import NativeSelect from '@material-ui/core/NativeSelect';
 // core components
@@ -93,7 +91,33 @@ class Maps extends React.Component {
       instrumentId: "",
       quantity: 10,
       side: "buy",
-      type: "market"
+      type: "market",
+      deleteId: "",
+      action: "",
+      columns: [
+        { title: 'Id', field: 'id' },
+        { title: 'Instrument', field: 'instrument' },
+        { title: 'Qty', field: 'qty', type: 'numeric' },
+        { title: 'Side', field: 'side'},
+        { title: 'Type', field: 'type'},
+        { title: 'FilledQty', field: 'filledQty', type: 'numeric' },
+        { title: 'AvgPrice', field: 'avgPrice', type: 'numeric' },
+        { title: 'LimitPrice', field: 'limitPrice', type: 'numeric' },
+        { title: 'StopPrice', field: 'stopPrice', type: 'numeric' },
+        { title: 'ParentId', field: 'parentId', type: 'numeric' },
+        { title: 'Duration', field: 'duration', type: 'numeric' },
+        { title: 'Status', field: 'status'},
+        { title: 'LastModified', field: 'lastModified'}
+      ],
+      data: [
+        { name: 'Mehmet', surname: 'Baran', birthYear: 1987, birthCity: 63 },
+        {
+          name: 'Zerya Betül',
+          surname: 'Baran',
+          birthYear: 2017,
+          birthCity: 34,
+        },
+      ]  
     }
   }
 
@@ -141,11 +165,22 @@ class Maps extends React.Component {
   handlePlaceOrder = () => {
     const { user } = this.props;
     var callback = (data) => { 
-      this.setState({
-        open: false,
-        alertOpen: true,
-        alertMessage: "Place order successfully"
-      })
+
+      console.log(data.order_status);
+      if (data.order_status.s == "error"){
+
+        this.setState({
+          open: false,
+          alertOpen: true,
+          alertMessage: data.order_status.errmsg
+        })
+      } else {
+        this.setState({
+          open: false,
+          alertOpen: true,
+          alertMessage: "Place order successfully"
+        })
+      }
     }
     this.props.placeOrder(user, this.state, callback)
     this.setState({
@@ -155,6 +190,30 @@ class Maps extends React.Component {
 
   handleAlertClose = () => {
     const { user } = this.props;
+    if (this.state.action == "delete"){
+      var callback = (data) => { 
+
+        console.log(data.order_status);
+        if (data.order_status.s == "error"){
+  
+          this.setState({
+            open: false,
+            alertOpen: true,
+            alertMessage: data.order_status.errmsg
+          })
+        } else {
+          this.setState({
+            open: false,
+            alertOpen: true,
+            alertMessage: "Place order successfully"
+          })
+        }
+      }
+      this.setState({
+        action: ""
+      })
+      this.props.cancelOrder(user, this.state.accountId, this.state.orderId, callback)
+    }
     this.props.getTradingInfor(user, this.state.accountId) 
     this.setState({
       alertOpen: false,
@@ -252,22 +311,35 @@ class Maps extends React.Component {
                   <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
                     Place Order
                   </Button>
-
                 </div>
               </CardFooter>
             </Card>
           </GridItem>
           <GridItem xs={12} sm={12} md={12}>
            <Card>
-                <CardHeader color="info">
-                  <h4 className={classes.cardTitleWhite}>Orders</h4>
+              <CardHeader color="info">
+                <h4 className={classes.cardTitleWhite}>Orders</h4>
                 </CardHeader>
-                <CardBody>
-                  <Table
-                    tableHeaderColor="warning"
-                    tableHead={["Id", "Instrument", "Qty", "Side", "Type", "FilledQty", "AvgPrice", "LimitPrice", "StopPrice", "ParentId", "Duration", "Status", "LastModified"]}
-                    tableData={tblOrders}
-                  />
+                    <CardBody>
+                      <MaterialTable
+                      title="Orders"
+                      columns={this.state.columns}
+                      data={orders}
+                      actions={[
+                        {
+                          icon: 'delete',
+                          tooltip: 'Delete order',
+                          onClick: (event, rowData) => {
+                            this.setState({
+                              action: "delete",
+                              orderId: rowData.id,
+                              alertOpen: true,
+                              alertMessage: "Do you want to cancel order: " + rowData.id.toString()
+                            })
+                          }
+                        }
+                      ]}
+                    />
                 </CardBody>
               </Card>
           </GridItem>
@@ -389,6 +461,9 @@ const mapDispatchToProps = dispatch => {
     },
     placeOrder: (user, order, callback) => {
       dispatch(placeOrder(user, order, callback))
+    },
+    cancelOrder: (user, accountId, orderId, callback) => {
+      dispatch(cancelOrder(user, accountId, orderId, callback))
     },
     getTradingInfor: (user, accountId) => {
       dispatch(getTradingInfor(user, accountId))

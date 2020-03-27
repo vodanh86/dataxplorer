@@ -108,3 +108,11 @@ class BscApi():
         response = requests.post(
             self.api_server + "accounts/" + account_id + "/orders", json.dumps(data), headers=self._get_header(bsc_token))
         return response.json()
+
+    def cancel_order(self, bsc_token, account_id, order_id):
+        data = {}
+        print(self.api_server + "accounts/" + account_id + "/orders/"+order_id + "/")
+        response = requests.delete(
+            self.api_server + "accounts/" + account_id + "/orders/"+order_id + "/", headers=self._get_header(bsc_token))
+        print(response)
+        return response.json()

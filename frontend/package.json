@@ -9,6 +9,7 @@
     "chartist": "0.10.1",
     "history": "^4.7.2",
     "jwt-decode": "^2.2.0",
+    "material-table": "^1.57.2",
     "moment": "^2.24.0",
     "react": "16.9.0",
     "react-chartist": "0.13.3",
