@@ -71,6 +71,9 @@ def update_token(request):
 def refresh_token(request):
     post_data = json.loads(request.body)
     user = post_data.get("user", {})
+    return JsonResponse({"user": get_user_from_bsc(user)})
+
+def get_user_from_bsc(user):
     refresh_token = user.get("bsc_refresh_token")
     obj_user = User.objects.get(pk=user.get("id"))
     try:
@@ -90,8 +93,7 @@ def refresh_token(request):
     user["bsc_refresh_token"] = profile.bsc_refresh_token
     user["email"] = obj_user.email
     user["expires_in"] = profile.expires_in.strftime('%Y-%m-%d %I:%M %p')
-    return JsonResponse({"user": user})
-
+    return user
 
 @csrf_exempt
 def get_config(request):
@@ -122,8 +124,7 @@ def check_token(request):
     bsc_refresh_token = user.get("bsc_refresh_token")
     config = bsc_api.get_accounts(bsc_token)
     if config.get("s") == 401:
-        refresh_response = refresh_token(request)
-        user = refresh_response.json()
+        user = get_user_from_bsc(user)
     return JsonResponse({"user": user})
 
 
