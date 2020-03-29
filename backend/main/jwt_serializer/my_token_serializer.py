@@ -14,6 +14,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         try:
             profile = Profile.objects.get(pk=self.user.id)
             user["bsc_token"] = profile.bsc_token
+            user["bsc_refresh_token"] = profile.bsc_refresh_token
             user["expires_in"] = profile.expires_in.strftime('%Y-%m-%d %I:%M %p')
         except:
             pass

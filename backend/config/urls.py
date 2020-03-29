@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^api/auth/token/obtain/$', MyTokenObtainPairView.as_view()),
     url(r'^api/auth/token/refresh/$', TokenRefreshView.as_view()),
     url(r'^api/user/updateToken/$', main_views.update_token, name='token_obtain_pair'),
+    url(r'^api/user/checkToken/$', main_views.check_token, name='check_token'),
     url(r'^api/user/refreshToken/$', main_views.refresh_token, name='token_obtain_pair'),
     url(r'^api/config/getConfig/$', main_views.get_config, name='token_obtain_pair'),
     url(r'^api/config/getMapping/$', main_views.get_mapping, name='token_obtain_pair'),

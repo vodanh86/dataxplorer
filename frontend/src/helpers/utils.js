@@ -6,5 +6,10 @@ export function getUpdatedToken() {
 
 export function formatDatetime(unixTimestamp){
     var now = new Date(unixTimestamp * 1000);
-    return moment(now).format('DD-MM-YYYY HH:mm:ss');
+    var validDate = moment(now)
+    if (validDate.isValid()){
+        return moment(now).format('DD-MM-YYYY HH:mm:ss');
+    } else {
+        return unixTimestamp;
+    }
 }

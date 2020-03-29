@@ -11,6 +11,7 @@ import { Redirect } from 'react-router'
 import {getUpdatedToken} from 'helpers/utils'
 import {formatDatetime} from 'helpers/utils'
 import { getAccounts } from '../../actions/account'
+import { checkToken } from '../../actions/auth'
 import { getConfig } from '../../actions/config'
 import { placeOrder } from '../../actions/trading'
 import { getTradingInfor } from '../../actions/trading'
@@ -87,11 +88,20 @@ class Maps extends React.Component {
       alertMessage: "",
       alertOpen: false,
       open: false,
-      accountId: "",
-      instrumentId: "",
-      quantity: 10,
-      side: "buy",
-      type: "market",
+      order: {
+        accountId: "",
+        instrument: "",
+        qty: 10,
+        side: "buy",
+        type: "market",
+        limitPrice: undefined,
+        stopPrice: undefined,
+        durationType: undefined,
+        durationDateTime: undefined,
+        stopLoss: undefined,
+        takeProfit: undefined,
+        requestId: undefined
+      },
       deleteId: "",
       action: "",
       columns: [
@@ -107,43 +117,43 @@ class Maps extends React.Component {
         { title: 'ParentId', field: 'parentId', type: 'numeric' },
         { title: 'Duration', field: 'duration', type: 'numeric' },
         { title: 'Status', field: 'status'},
-        { title: 'LastModified', field: 'lastModified'}
+        {
+          field: 'lastModified',
+          title: 'LastModified',
+          render: rowData => formatDatetime(rowData.lastModified)
+        }
       ],
       data: [
-        { name: 'Mehmet', surname: 'Baran', birthYear: 1987, birthCity: 63 },
-        {
-          name: 'Zerya Betül',
-          surname: 'Baran',
-          birthYear: 2017,
-          birthCity: 34,
-        },
       ]  
     }
   }
 
   componentDidMount() {
     const { user } = this.props;
+    this.props.checkToken(user);
     this.props.getAccounts(user);
     this.props.getConfig(user);
   }
 
   handleOnChange = (event) => {
     const { user } = this.props;
+    this.state.order.accountId = event.target.value;
     this.setState(
-      { accountId: event.target.value }
+      { order: this.state.order }
     )
     this.props.getTradingInfor(user, event.target.value)
   }
 
   handleInstrumentOnChange = (event) => {
+    this.state.order.instrument = event.target.value;
     this.setState(
-      { instrumentId: event.target.value }
+      { order: this.state.order }
     )
     //this.props.refreshToken(user);
   }
 
   handleClickOpen = () => {
-    if (this.state.accountId == "" || this.state.instrumentId == "") {
+    if (this.state.order.accountId == "" || this.state.order.instrument == "") {
       this.setState(
         {
           alertOpen: true,
@@ -166,7 +176,6 @@ class Maps extends React.Component {
     const { user } = this.props;
     var callback = (data) => { 
 
-      console.log(data.order_status);
       if (data.order_status.s == "error"){
 
         this.setState({
@@ -182,7 +191,7 @@ class Maps extends React.Component {
         })
       }
     }
-    this.props.placeOrder(user, this.state, callback)
+    this.props.placeOrder(user, this.state.order, callback)
     this.setState({
       open: false
     })
@@ -205,16 +214,16 @@ class Maps extends React.Component {
           this.setState({
             open: false,
             alertOpen: true,
-            alertMessage: "Place order successfully"
+            alertMessage: "Cancel order successfully"
           })
         }
       }
       this.setState({
         action: ""
       })
-      this.props.cancelOrder(user, this.state.accountId, this.state.orderId, callback)
+      this.props.cancelOrder(user, this.state.order.accountId, this.state.order.orderId, callback)
     }
-    this.props.getTradingInfor(user, this.state.accountId) 
+    this.props.getTradingInfor(user, this.state.order.accountId) 
     this.setState({
       alertOpen: false,
     })
@@ -327,12 +336,26 @@ class Maps extends React.Component {
                       data={orders}
                       actions={[
                         {
+                          icon: 'edit',
+                          tooltip: 'Edit order',
+                          onClick: (event, rowData) => {
+                            this.state.order.orderId = rowData.id;
+                            this.setState({
+                              action: "edit",
+                              order: this.state.order,
+                              alertOpen: true,
+                              alertMessage: "Do you want to edit order: " + rowData.id.toString()
+                            })
+                          }
+                        },
+                        {
                           icon: 'delete',
                           tooltip: 'Delete order',
                           onClick: (event, rowData) => {
+                            this.state.order.orderId = rowData.id;
                             this.setState({
                               action: "delete",
-                              orderId: rowData.id,
+                              order: this.state.order,
                               alertOpen: true,
                               alertMessage: "Do you want to cancel order: " + rowData.id.toString()
                             })
@@ -372,7 +395,7 @@ class Maps extends React.Component {
                     fullWidth: true
                   }}
                   disabled="true"
-                  value={this.state.accountId}
+                  value={this.state.order.accountId}
                 />
               </GridItem>
               <GridItem xs={12} sm={12} md={6}>
@@ -383,7 +406,7 @@ class Maps extends React.Component {
                     fullWidth: true
                   }}
                   disabled="true"
-                  value={this.state.instrumentId}
+                  value={this.state.order.instrument}
                 />
               </GridItem>
             </GridContainer>
@@ -396,7 +419,7 @@ class Maps extends React.Component {
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  value={this.state.quantity}
+                  value={this.state.order.qty}
                 />
               </GridItem>
               <GridItem xs={12} sm={12} md={6}>
@@ -455,6 +478,9 @@ const mapDispatchToProps = dispatch => {
   return {
     getAccounts: (user) => {
       dispatch(getAccounts(user))
+    },
+    checkToken: (user) => {
+      dispatch(checkToken(user))
     },
     getConfig: (user) => {
       dispatch(getConfig(user))

@@ -115,6 +115,19 @@ def get_mapping(request):
 
 
 @csrf_exempt
+def check_token(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    bsc_refresh_token = user.get("bsc_refresh_token")
+    config = bsc_api.get_accounts(bsc_token)
+    if config.get("s") == 401:
+        refresh_response = refresh_token(request)
+        user = refresh_response.json()
+    return JsonResponse({"user": user})
+
+
+@csrf_exempt
 def get_accounts(request):
     post_data = json.loads(request.body)
     user = post_data.get("user", {})
@@ -130,7 +143,7 @@ def place_order(request):
     bsc_token = user.get("bsc_token")
     order = post_data.get("order", {})
     order_status = bsc_api.place_order(bsc_token, order.get("accountId"), order.get(
-        "instrumentId"), order.get("quantity"), order.get("side"), order.get("type"))
+        "instrument"), order.get("qty"), order.get("side"), order.get("type"))
     return JsonResponse({"order_status": order_status})
 
 

@@ -49,8 +49,13 @@ export default (state=initialState, action) => {
       }
     case auth.UPDATE_TOKEN_RECEIVED:
       return {
-        //user: action.payload.user
+        user: action.payload.user
       }
+    case auth.CHECK_TOKEN_RECEIVED:
+        return {
+         ...state,
+         user: action.payload.user
+        }
     case auth.REFRESH_TOKEN_RECEIVED:
       return {
         user: action.payload.user

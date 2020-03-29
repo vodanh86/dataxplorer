@@ -17,6 +17,10 @@ export const UPDATE_TOKEN_REQUEST = '@@jwt/UPDATE_TOKEN_REQUEST';
 export const UPDATE_TOKEN_RECEIVED = '@@jwt/UPDATE_TOKEN_RECEIVED';
 export const UPDATE_TOKEN_FAILURE = '@@jwt/UPDATE_TOKEN_FAILURE';
 
+export const CHECK_TOKEN_REQUEST = '@@jwt/CHECK_TOKEN_REQUEST';
+export const CHECK_TOKEN_RECEIVED = '@@jwt/CHECK_TOKEN_RECEIVED';
+export const CHECK_TOKEN_FAILURE = '@@jwt/CHECK_TOKEN_FAILURE';
+
 export const REFRESH_TOKEN_REQUEST = '@@jwt/REFRESH_TOKEN_REQUEST';
 export const REFRESH_TOKEN_RECEIVED = '@@jwt/REFRESH_TOKEN_RECEIVED';
 export const REFRESH_TOKEN_FAILURE = '@@jwt/REFRESH_TOKEN_FAILURE';
@@ -47,6 +51,18 @@ export const refreshAccessToken = (token) => ({
         ]
     }
 })
+
+export const checkToken = (user) => ({
+    [RSAA]: {
+        endpoint: '/api/user/checkToken/',
+        method: 'POST',
+        body: JSON.stringify({user: user}),
+        headers: withAuth({ 'Content-Type': 'application/json' }),
+        types: [
+            CHECK_TOKEN_REQUEST, CHECK_TOKEN_RECEIVED, CHECK_TOKEN_FAILURE           
+        ]
+    }
+  })
 
 export const updateToken = (user, code) => ({
     [RSAA]: {
