@@ -7,6 +7,10 @@ export const PLACE_ORDER_REQUEST = '@@trading/PLACE_ORDER_REQUEST';
 export const PLACE_ORDER_SUCCESS = '@@trading/PLACE_ORDER_SUCCESS';
 export const PLACE_ORDER_FAILURE = '@@trading/PLACE_ORDER_FAILURE';
 
+export const EDIT_ORDER_REQUEST = '@@trading/EDIT_ORDER_REQUEST';
+export const EDIT_ORDER_SUCCESS = '@@trading/EDIT_ORDER_SUCCESS';
+export const EDIT_ORDER_FAILURE = '@@trading/EDIT_ORDER_FAILURE';
+
 export const CANCEL_ORDER_REQUEST = '@@trading/CANCEL_ORDER_REQUEST';
 export const CANCEL_ORDER_SUCCESS = '@@trading/CANCEL_ORDER_SUCCESS';
 export const CANCEL_ORDER_FAILURE = '@@trading/CANCEL_ORDER_FAILURE';
@@ -33,6 +37,28 @@ export const placeOrder = (user, order, callback) => ({
             }
         },
         PLACE_ORDER_FAILURE
+      ]
+  }
+})
+
+export const editOrder = (user, order, callback) => ({
+  [RSAA]: {
+      endpoint: '/api/trading/editOrder/',
+      method: 'POST',
+      body: JSON.stringify({user: user, order: order}),
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      types: [
+        EDIT_ORDER_REQUEST, 
+        {
+          type: EDIT_ORDER_SUCCESS,
+          payload: (action, state, res) => {
+              return res.json().then((data) => {
+                 callback(data); // <== call second action here
+                 return data; // <== payload for the SUCCESS action
+              });
+            }
+        },
+        EDIT_ORDER_FAILURE
       ]
   }
 })

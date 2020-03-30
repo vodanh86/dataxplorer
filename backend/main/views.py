@@ -73,6 +73,7 @@ def refresh_token(request):
     user = post_data.get("user", {})
     return JsonResponse({"user": get_user_from_bsc(user)})
 
+
 def get_user_from_bsc(user):
     refresh_token = user.get("bsc_refresh_token")
     obj_user = User.objects.get(pk=user.get("id"))
@@ -94,6 +95,7 @@ def get_user_from_bsc(user):
     user["email"] = obj_user.email
     user["expires_in"] = profile.expires_in.strftime('%Y-%m-%d %I:%M %p')
     return user
+
 
 @csrf_exempt
 def get_config(request):
@@ -143,8 +145,17 @@ def place_order(request):
     user = post_data.get("user", {})
     bsc_token = user.get("bsc_token")
     order = post_data.get("order", {})
-    order_status = bsc_api.place_order(bsc_token, order.get("accountId"), order.get(
-        "instrument"), order.get("qty"), order.get("side"), order.get("type"))
+    order_status = bsc_api.place_order(bsc_token, order)
+    return JsonResponse({"order_status": order_status})
+
+
+@csrf_exempt
+def edit_order(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    order = post_data.get("order", {})
+    order_status = bsc_api.place_order(bsc_token, order)
     return JsonResponse({"order_status": order_status})
 
 

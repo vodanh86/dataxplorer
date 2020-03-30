@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^api/account/getAccountInfo/$', main_views.get_account_info, name='get_accounts'),
     url(r'^api/marketData/getMarketData/$', main_views.get_market_data, name='get_market_data'),
     url(r'^api/trading/placeOrder/$', main_views.place_order, name='place_order'),
+    url(r'^api/trading/editOrder/$', main_views.edit_order, name='edit_order'),
     url(r'^api/trading/cancelOrder/$', main_views.cancel_order, name='cancel_order'),
     url(r'^api/trading/getTradingInfor/$', main_views.get_trading_info, name='get_trading_infor'),
     url(r'^api/echo/$', EchoView.as_view())

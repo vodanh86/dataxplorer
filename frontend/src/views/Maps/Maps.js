@@ -2,20 +2,22 @@ import React from "react";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import { Redirect } from 'react-router'
-import {getUpdatedToken} from 'helpers/utils'
-import {formatDatetime} from 'helpers/utils'
+import { getUpdatedToken } from 'helpers/utils'
+import { formatDatetime } from 'helpers/utils'
 import { getAccounts } from '../../actions/account'
 import { checkToken } from '../../actions/auth'
 import { getConfig } from '../../actions/config'
 import { placeOrder } from '../../actions/trading'
 import { getTradingInfor } from '../../actions/trading'
 import { cancelOrder } from '../../actions/trading'
+import { editOrder } from '../../actions/trading'
 // core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -100,7 +102,7 @@ class Maps extends React.Component {
         durationDateTime: undefined,
         stopLoss: undefined,
         takeProfit: undefined,
-        requestId: undefined
+        requestId: undefined,
       },
       deleteId: "",
       action: "",
@@ -108,15 +110,15 @@ class Maps extends React.Component {
         { title: 'Id', field: 'id' },
         { title: 'Instrument', field: 'instrument' },
         { title: 'Qty', field: 'qty', type: 'numeric' },
-        { title: 'Side', field: 'side'},
-        { title: 'Type', field: 'type'},
+        { title: 'Side', field: 'side' },
+        { title: 'Type', field: 'type' },
         { title: 'FilledQty', field: 'filledQty', type: 'numeric' },
         { title: 'AvgPrice', field: 'avgPrice', type: 'numeric' },
         { title: 'LimitPrice', field: 'limitPrice', type: 'numeric' },
         { title: 'StopPrice', field: 'stopPrice', type: 'numeric' },
         { title: 'ParentId', field: 'parentId', type: 'numeric' },
         { title: 'Duration', field: 'duration', type: 'numeric' },
-        { title: 'Status', field: 'status'},
+        { title: 'Status', field: 'status' },
         {
           field: 'lastModified',
           title: 'LastModified',
@@ -124,7 +126,7 @@ class Maps extends React.Component {
         }
       ],
       data: [
-      ]  
+      ]
     }
   }
 
@@ -157,11 +159,12 @@ class Maps extends React.Component {
       this.setState(
         {
           alertOpen: true,
-          alertMessage: "Please select accountId and instrumentId"
+          alertMessage: "Please select account and instrument"
         })
     } else {
       this.setState({
-        open: true
+        open: true,
+        action: "place"
       })
     }
   };
@@ -174,9 +177,9 @@ class Maps extends React.Component {
 
   handlePlaceOrder = () => {
     const { user } = this.props;
-    var callback = (data) => { 
+    var callback = (data) => {
 
-      if (data.order_status.s == "error"){
+      if (data.order_status.s == "error") {
 
         this.setState({
           open: false,
@@ -187,24 +190,37 @@ class Maps extends React.Component {
         this.setState({
           open: false,
           alertOpen: true,
-          alertMessage: "Place order successfully"
+          alertMessage: this.state.action + " order successfully"
         })
       }
     }
-    this.props.placeOrder(user, this.state.order, callback)
+    if (this.state.action == "place"){
+      this.props.placeOrder(user, this.state.order, callback)
+    } else {
+      this.props.editOrder(user, this.state.order, callback)
+    }
     this.setState({
       open: false
     })
   }
 
+  handleFormChange = (field, event) => {
+    this.state.order[field] = event.target.value;
+    
+    this.setState({
+      order: this.state.order
+      }
+    )
+  }
+
   handleAlertClose = () => {
     const { user } = this.props;
-    if (this.state.action == "delete"){
-      var callback = (data) => { 
+    if (this.state.action == "delete") {
+      var callback = (data) => {
 
         console.log(data.order_status);
-        if (data.order_status.s == "error"){
-  
+        if (data.order_status.s == "error") {
+
           this.setState({
             open: false,
             alertOpen: true,
@@ -223,16 +239,17 @@ class Maps extends React.Component {
       })
       this.props.cancelOrder(user, this.state.order.accountId, this.state.order.orderId, callback)
     }
-    this.props.getTradingInfor(user, this.state.order.accountId) 
     this.setState({
       alertOpen: false,
     })
+
+    this.props.getTradingInfor(user, this.state.order.accountId)
   };
 
   render() {
     const { classes } = this.props;
     const { user } = this.props;
-    const {orderStatus} = this.props.trading;
+    const { orderStatus } = this.props.trading;
     var accounts = []
     var tblState = []
     var instruments = []
@@ -325,46 +342,48 @@ class Maps extends React.Component {
             </Card>
           </GridItem>
           <GridItem xs={12} sm={12} md={12}>
-           <Card>
+            <Card>
               <CardHeader color="info">
                 <h4 className={classes.cardTitleWhite}>Orders</h4>
-                </CardHeader>
-                    <CardBody>
-                      <MaterialTable
-                      title="Orders"
-                      columns={this.state.columns}
-                      data={orders}
-                      actions={[
-                        {
-                          icon: 'edit',
-                          tooltip: 'Edit order',
-                          onClick: (event, rowData) => {
-                            this.state.order.orderId = rowData.id;
-                            this.setState({
-                              action: "edit",
-                              order: this.state.order,
-                              alertOpen: true,
-                              alertMessage: "Do you want to edit order: " + rowData.id.toString()
-                            })
-                          }
-                        },
-                        {
-                          icon: 'delete',
-                          tooltip: 'Delete order',
-                          onClick: (event, rowData) => {
-                            this.state.order.orderId = rowData.id;
-                            this.setState({
-                              action: "delete",
-                              order: this.state.order,
-                              alertOpen: true,
-                              alertMessage: "Do you want to cancel order: " + rowData.id.toString()
-                            })
-                          }
-                        }
-                      ]}
-                    />
-                </CardBody>
-              </Card>
+              </CardHeader>
+              <CardBody>
+                <MaterialTable
+                  title="Orders"
+                  columns={this.state.columns}
+                  data={orders}
+                  actions={[
+                    {
+                      icon: 'edit',
+                      tooltip: 'Edit order',
+                      onClick: (event, rowData) => {
+                        var accountId = this.state.order.accountId;
+                        this.state.order = _.clone(rowData);
+                        this.state.order.accountId = accountId;
+                        this.state.order.orderId = rowData.id;
+                        this.setState({
+                          action: "edit",
+                          order: this.state.order,
+                          open: true
+                        })
+                      }
+                    },
+                    {
+                      icon: 'delete',
+                      tooltip: 'Delete order',
+                      onClick: (event, rowData) => {
+                        this.state.order.orderId = rowData.id;
+                        this.setState({
+                          action: "delete",
+                          order: this.state.order,
+                          alertOpen: true,
+                          alertMessage: "Do you want to cancel order: " + rowData.id.toString()
+                        })
+                      }
+                    }
+                  ]}
+                />
+              </CardBody>
+            </Card>
           </GridItem>
         </GridContainer>
         <Dialog
@@ -384,7 +403,7 @@ class Maps extends React.Component {
           </DialogActions>
         </Dialog>
         <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
-          <DialogTitle id="form-dialog-title">Place order</DialogTitle>
+          <DialogTitle id="form-dialog-title">{this.state.action} order</DialogTitle>
           <DialogContent>
             <GridContainer>
               <GridItem xs={12} sm={12} md={6}>
@@ -419,30 +438,66 @@ class Maps extends React.Component {
                   InputLabelProps={{
                     shrink: true,
                   }}
+                  onChange={(event) => this.handleFormChange("qty", event)}
                   value={this.state.order.qty}
+                />
+              </GridItem>
+              <GridItem xs={12} sm={12} md={6}>
+                <InputLabel htmlFor="age-native-helper">Side</InputLabel>
+                <NativeSelect
+                  inputProps={{
+                    name: 'side',
+                    id: 'side-native-helper',
+                  }}
+                  onChange={(event) => this.handleFormChange("side", event)}
+                  value={this.state.order.side}
+                >
+                  <option key="buy" value="buy" >Buy</option>
+                  <option key="sell" value="sell" >Sell</option>
+                </NativeSelect>
+              </GridItem>
+            </GridContainer>
+            <GridContainer>  
+              <GridItem xs={12} sm={12} md={6}>
+                <InputLabel htmlFor="age-native-helper">Type</InputLabel>
+                <NativeSelect
+                  inputProps={{
+                    name: 'type',
+                    id: 'type-native-helper',
+                  }}
+                  onChange={(event) => this.handleFormChange("type", event)}
+                  value={this.state.order.type}
+                >
+                  <option key="market" value="market" >market</option>
+                  <option key="stop" value="stop" >stop</option>
+                  <option key="limit" value="limit" >limit</option>
+                  <option key="stoplimit" value="stoplimit" >stoplimit</option>
+                </NativeSelect>
+              </GridItem>
+            </GridContainer>
+            <GridContainer>
+              <GridItem xs={12} sm={12} md={6}>
+                <TextField
+                  id="standard-number"
+                  label="LimitPrice"
+                  type="number"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  onChange={(event) => this.handleFormChange("limitPrice", event)}
+                  value={this.state.order.limitPrice}
                 />
               </GridItem>
               <GridItem xs={12} sm={12} md={6}>
                 <TextField
                   id="standard-number"
-                  label="Side"
+                  label="StopPrice"
+                  type="number"
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  value={this.state.side}
-                />
-              </GridItem>
-            </GridContainer>
-            <GridContainer>
-              <GridItem xs={12} sm={12} md={12}>
-                <CustomInput
-                  labelText="Type"
-                  id="city"
-                  formControlProps={{
-                    fullWidth: true
-                  }}
-                  disabled="true"
-                  value={this.state.type}
+                  onChange={(event) => this.handleFormChange("stopPrice", event)}
+                  value={this.state.order.stopPrice}
                 />
               </GridItem>
             </GridContainer>
@@ -487,6 +542,9 @@ const mapDispatchToProps = dispatch => {
     },
     placeOrder: (user, order, callback) => {
       dispatch(placeOrder(user, order, callback))
+    },
+    editOrder: (user, order, callback) => {
+      dispatch(editOrder(user, order, callback))
     },
     cancelOrder: (user, accountId, orderId, callback) => {
       dispatch(cancelOrder(user, accountId, orderId, callback))

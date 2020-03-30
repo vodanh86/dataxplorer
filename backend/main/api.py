@@ -101,17 +101,24 @@ class BscApi():
             self.api_server + "depth/", data, headers=self._get_header(bsc_token))
         return response.json()
 
-    def place_order(self, bsc_token, account_id, instrument_id, quantity, side, type):
-        data = {"accountId": account_id, "instrument": instrument_id,
-                "qty": quantity, "side": side, "type": type,
+    def place_order(self, bsc_token, order):
+        data = {"accountId": order.get("accountId"), "instrument": order.get("instrument"),
+                "qty": order.get("qty"), "side": order.get("side"), "type": order.get("type"),
                 "requestId": datetime.datetime.now().strftime('%s')}
+        if (order.get("limitPrice")):
+            data["limitPrice"] = order.get("limitPrice")
+        if (order.get("stopPrice")):
+            data["stopPrice"] = order.get("stopPrice")
+        print(data)
+
         response = requests.post(
-            self.api_server + "accounts/" + account_id + "/orders", json.dumps(data), headers=self._get_header(bsc_token))
+            self.api_server + "accounts/" + order.get("accountId") + "/orders", json.dumps(data), headers=self._get_header(bsc_token))
         return response.json()
 
     def cancel_order(self, bsc_token, account_id, order_id):
         data = {}
-        print(self.api_server + "accounts/" + account_id + "/orders/"+order_id + "/")
+        print(self.api_server + "accounts/" +
+              account_id + "/orders/"+order_id + "/")
         response = requests.delete(
             self.api_server + "accounts/" + account_id + "/orders/"+order_id + "/", headers=self._get_header(bsc_token))
         print(response)
