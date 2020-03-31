@@ -18,6 +18,7 @@ import { placeOrder } from '../../actions/trading'
 import { getTradingInfor } from '../../actions/trading'
 import { cancelOrder } from '../../actions/trading'
 import { editOrder } from '../../actions/trading'
+import { closePosition } from '../../actions/trading'
 // core components
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
@@ -104,9 +105,15 @@ class Maps extends React.Component {
         takeProfit: undefined,
         requestId: undefined,
       },
+      position: {
+        accountId: "",
+        positionId: undefined,
+        stopLoss: undefined,
+        takeProfit: undefined
+      },
       deleteId: "",
       action: "",
-      columns: [
+      orderColumns: [
         { title: 'Id', field: 'id' },
         { title: 'Instrument', field: 'instrument' },
         { title: 'Qty', field: 'qty', type: 'numeric' },
@@ -124,6 +131,16 @@ class Maps extends React.Component {
           title: 'LastModified',
           render: rowData => formatDatetime(rowData.lastModified)
         }
+      ],
+      positionColumns: [
+        { title: 'Id', field: 'id' },
+        { title: 'Instrument', field: 'instrument' },
+        { title: 'Qty', field: 'qty', type: 'numeric' },
+        { title: 'Side', field: 'side' },
+        { title: 'AvgPrice', field: 'avgPrice' },
+        { title: 'UnrealizedPl', field: 'unrealizedPl', type: 'numeric' },
+        { title: 'CustomFields', field: 'customFields1', type: 'string' },
+        { title: 'TableData', field: 'tableData1'},
       ],
       data: [
       ]
@@ -218,8 +235,7 @@ class Maps extends React.Component {
     if (this.state.action == "delete") {
       var callback = (data) => {
 
-        console.log(data.order_status);
-        if (data.order_status.s == "error") {
+         if (data.order_status.s == "error") {
 
           this.setState({
             open: false,
@@ -238,6 +254,27 @@ class Maps extends React.Component {
         action: ""
       })
       this.props.cancelOrder(user, this.state.order.accountId, this.state.order.orderId, callback)
+    } else if (this.state.action == "close"){
+      var callback = (data) => {
+        if (data.position_status.s == "error") {
+
+         this.setState({
+           open: false,
+           alertOpen: true,
+           alertMessage: data.position_status.errmsg
+         })
+       } else {
+         this.setState({
+           open: false,
+           alertOpen: true,
+           alertMessage: "close position successfully"
+         })
+       }
+     }
+     this.setState({
+       action: ""
+     })
+     this.props.closePosition(user, this.state.order.accountId, this.state.position.positionId, callback)      
     }
     this.setState({
       alertOpen: false,
@@ -254,6 +291,7 @@ class Maps extends React.Component {
     var tblState = []
     var instruments = []
     var tblOrders = []
+    var tblPositions = [];
     try {
       var accountState = this.props.accounts.accountInfo.state.d
       tblState.push([accountState.balance, accountState.equity, accountState.unrealizedPl, JSON.stringify(accountState.amData)]);
@@ -273,6 +311,13 @@ class Maps extends React.Component {
       var orders = this.props.trading.orders.d
       orders.forEach(order => {
         tblOrders.push([order.id, order.instrument, order.qty, order.side, order.type, order.filledQty, order.avgPrice, order.limitPrice, order.stopPrice, order.parentId, order.duration, order.status, formatDatetime(order.lastModified)])
+      })
+    } catch (err) {
+    }
+    try {
+      var positions = this.props.trading.positions.d
+      positions.forEach(position => {
+        tblPositions.push([position.id, position.instrument, position.qty, position.side, position.avgPrice, position.unrealizedPl, position.customFields])
       })
     } catch (err) {
     }
@@ -349,7 +394,7 @@ class Maps extends React.Component {
               <CardBody>
                 <MaterialTable
                   title="Orders"
-                  columns={this.state.columns}
+                  columns={this.state.orderColumns}
                   data={orders}
                   actions={[
                     {
@@ -377,6 +422,35 @@ class Maps extends React.Component {
                           order: this.state.order,
                           alertOpen: true,
                           alertMessage: "Do you want to cancel order: " + rowData.id.toString()
+                        })
+                      }
+                    }
+                  ]}
+                />
+              </CardBody>
+            </Card>
+          </GridItem> 
+          <GridItem xs={12} sm={12} md={12}>
+            <Card>
+              <CardHeader color="primary">
+                <h4 className={classes.cardTitleWhite}>Positions</h4>
+              </CardHeader>
+              <CardBody>
+                <MaterialTable
+                  title="Positions"
+                  columns={this.state.positionColumns}
+                  data={positions}
+                  actions={[
+                    {
+                      icon: 'close',
+                      tooltip: 'Close position',
+                      onClick: (event, rowData) => {
+                        this.state.position.positionId = rowData.id;
+                        this.setState({
+                          action: "close",
+                          position: this.state.position,
+                          alertOpen: true,
+                          alertMessage: "Do you want to close position: " + rowData.id.toString()
                         })
                       }
                     }
@@ -548,6 +622,9 @@ const mapDispatchToProps = dispatch => {
     },
     cancelOrder: (user, accountId, orderId, callback) => {
       dispatch(cancelOrder(user, accountId, orderId, callback))
+    },
+    closePosition: (user, accountId, positionId, callback) => {
+      dispatch(closePosition(user, accountId, positionId, callback))
     },
     getTradingInfor: (user, accountId) => {
       dispatch(getTradingInfor(user, accountId))

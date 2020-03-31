@@ -109,7 +109,6 @@ class BscApi():
             data["limitPrice"] = order.get("limitPrice")
         if (order.get("stopPrice")):
             data["stopPrice"] = order.get("stopPrice")
-        print(data)
 
         response = requests.post(
             self.api_server + "accounts/" + order.get("accountId") + "/orders", json.dumps(data), headers=self._get_header(bsc_token))
@@ -122,4 +121,13 @@ class BscApi():
         response = requests.delete(
             self.api_server + "accounts/" + account_id + "/orders/"+order_id + "/", headers=self._get_header(bsc_token))
         print(response)
+        return response.json()
+
+    def close_position(self, bsc_token, account_id, position_id):
+        data = {}
+        print(self.api_server + "accounts/" +
+              account_id + "/positions/" + position_id + "/")
+        response = requests.delete(
+            self.api_server + "accounts/" + account_id + "/positions/"+position_id + "/", headers=self._get_header(bsc_token))
+        print(response.json())
         return response.json()

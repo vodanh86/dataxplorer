@@ -164,11 +164,20 @@ def cancel_order(request):
     post_data = json.loads(request.body)
     user = post_data.get("user", {})
     bsc_token = user.get("bsc_token")
-    orderId = post_data.get("orderId", "")
-    accountId = post_data.get("accountId", "")
-    order_status = bsc_api.cancel_order(bsc_token, accountId, orderId)
+    order_id = post_data.get("orderId", "")
+    account_id = post_data.get("accountId", "")
+    order_status = bsc_api.cancel_order(bsc_token, account_id, order_id)
     return JsonResponse({"order_status": order_status})
 
+@csrf_exempt
+def close_position(request):
+    post_data = json.loads(request.body)
+    user = post_data.get("user", {})
+    bsc_token = user.get("bsc_token")
+    position_id = post_data.get("positionId", "")
+    account_id = post_data.get("accountId", "")
+    order_status = bsc_api.close_position(bsc_token, account_id, position_id)
+    return JsonResponse({"position_status": order_status})
 
 @csrf_exempt
 def get_account_info(request):
@@ -206,4 +215,5 @@ def get_trading_info(request):
     bsc_token = user.get("bsc_token")
     account_id = post_data.get("accountId")
     orders = bsc_api.get_orders(bsc_token, account_id)
-    return JsonResponse({"orders": orders})
+    positions = bsc_api.get_positions(bsc_token, account_id)
+    return JsonResponse({"orders": orders, "positions": positions})

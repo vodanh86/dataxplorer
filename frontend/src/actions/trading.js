@@ -19,6 +19,10 @@ export const GET_TRADING_REQUEST = '@@trading/GET_TRADING_REQUEST';
 export const GET_TRADING_SUCCESS = '@@trading/GET_TRADING_SUCCESS';
 export const GET_TRADING_FAILURE = '@@trading/GET_TRADING_FAILURE';
 
+export const CLOSE_POSITION_REQUEST = '@@trading/CLOSE_POSITION_REQUEST';
+export const CLOSE_POSITION_SUCCESS = '@@trading/CLOSE_POSITION_SUCCESS';
+export const CLOSE_POSITION_FAILURE = '@@trading/CLOSE_POSITION_FAILURE';
+
 export const placeOrder = (user, order, callback) => ({
   [RSAA]: {
       endpoint: '/api/trading/placeOrder/',
@@ -81,6 +85,28 @@ export const cancelOrder = (user, accountId, orderId, callback) => ({
             }
         },
         CANCEL_ORDER_FAILURE
+      ]
+  }
+})
+
+export const closePosition = (user, accountId, positionId, callback) => ({
+  [RSAA]: {
+      endpoint: '/api/trading/closePosition/',
+      method: 'POST',
+      body: JSON.stringify({user: user, accountId: accountId, positionId: positionId}),
+      headers: withAuth({ 'Content-Type': 'application/json' }),
+      types: [
+        CLOSE_POSITION_REQUEST, 
+        {
+          type: CLOSE_POSITION_SUCCESS,
+          payload: (action, state, res) => {
+              return res.json().then((data) => {
+                 callback(data); // <== call second action here
+                 return data; // <== payload for the SUCCESS action
+              });
+            }
+        },
+        CLOSE_POSITION_FAILURE
       ]
   }
 })
