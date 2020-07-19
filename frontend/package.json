@@ -9,7 +9,7 @@
     "chartist": "0.10.1",
     "history": "^4.7.2",
     "jwt-decode": "^2.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "material-table": "^1.57.2",
     "moment": "^2.24.0",
     "react": "16.9.0",
